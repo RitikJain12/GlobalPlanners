@@ -2,6 +2,7 @@
 
 #include "point.h"
 #include <math.h>
+#include <unordered_set>
 
 class Node
 {
@@ -18,4 +19,19 @@ public:
 
     // Comparison operator for priority queue (min-heap based on f value)
     bool operator>(const Node &other) const;
+
+    // Equality operator for comparing two Node objects
+    bool operator==(const Node &other) const;
 };
+
+namespace std
+{
+    template <>
+    struct hash<Node>
+    {
+        std::size_t operator()(const Node &node) const
+        {
+            return std::hash<float>()(node.point.x) ^ std::hash<float>()(node.point.y) ^ std::hash<float>()(node.point.theta);
+        }
+    };
+}
