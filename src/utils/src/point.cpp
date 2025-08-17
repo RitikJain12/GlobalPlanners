@@ -38,5 +38,10 @@ void Point::setThetaThreshold(float newThetaThreshold)
     _theta_threshold = newThetaThreshold;
 }
 
+float Point::euclideanDistance(const Point &p1, const Point &p2)
+{
+    return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
+}
+
 float Point::_threshold = 0.01f;      // Default threshold for floating-point comparison
 float Point::_theta_threshold = 0.1f; // Default threshold for theta comparison

@@ -20,6 +20,9 @@ public:
     // Set a new threshold for theta comparison
     static void setThetaThreshold(float newThetaThreshold);
 
+    // Calculate the Euclidean distance between two points
+    static float euclideanDistance(const Point &p1, const Point &p2);
+
     // Equality operator for comparing two Point objects
     bool operator==(const Point &other) const;
 
