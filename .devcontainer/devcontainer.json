@@ -23,7 +23,8 @@
                 "ms-vscode.cpptools-extensions-pack",
                 "ms-azuretools.vscode-docker",
                 "redhat.vscode-yaml",
-                "eamodio.gitlens"
+                "eamodio.gitlens",
+                "ms-vscode.cpptools"
             ],
             "settings": {
                 "editor.formatOnSave": true,
