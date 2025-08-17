@@ -1,6 +1,10 @@
 #pragma once
 
+#include <math.h>
 #include <vector>
+#include <queue>
+#include <unordered_set>
+#include <functional>
 #include "point.h"
 #include "node.h"
 
@@ -23,7 +27,7 @@ public:
     void setEndNode(float x, float y, float theta);
 
     // Method to get the path
-    std::vector<Point> getPath();
+    bool getPath(std::vector<Point> &path);
 
 private:
     // Helper function to round points to the nearest resolution
@@ -32,11 +36,17 @@ private:
     // Helper function to get neighbors of a point
     std::vector<Point> getNeighbors(const Point &point);
 
-    // Member variables
-    Node startNode;         // Starting point of the path
-    Node endNode;           // Ending point of the path
-    std::vector<Point> path; // Vector to store the path points
+    // Helper function to backtrack the path from the end node to the start node
+    void backtrackPath(std::vector<Point> &path);
 
-    float _xy_resolution;    // Resolution for XY coordinates
-    float _theta_resolution; // Resolution for theta
+    // Helper function to calculate costs between two nodes
+    float calculateCosts(const Node &currentNode, const Node &neighborNode);
+
+    // Member variables
+    Node startNode; // Starting point of the path
+    Node endNode;   // Ending point of the path
+
+    float _xy_resolution;     // Resolution for XY coordinates
+    float _theta_resolution;  // Resolution for theta
+    float _theta_least_count; // Least count for theta resolution
 };
