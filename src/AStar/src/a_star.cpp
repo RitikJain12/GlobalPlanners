@@ -49,6 +49,9 @@ std::vector<Point> AStar::getNeighbors(const Point &point)
     // Add neighbors in the theta direction
     for (float dtheta = 0; dtheta <= 2 * M_PI; dtheta += ((2 * M_PI) / _theta_resolution))
     {
+        if (dtheta == 0.0f)
+            continue; // Skip the current point
+
         Point neighbor(point.x, point.y, point.theta + dtheta);
         roundPointsToResolution(neighbor);
         neighbors.push_back(neighbor);
