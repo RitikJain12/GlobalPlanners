@@ -7,7 +7,7 @@ class AStar
 {
 public:
     // Constructor
-    AStar(float xy_threshold = 0.01f, float theta_threshold = 0.1f);
+    AStar(float xy_resolution = 1.0f, float theta_resolution = 8.0f);
 
     // Method to set the start point
     void setStartPoint(const Point &start);
@@ -25,7 +25,17 @@ public:
     std::vector<Point> getPath();
 
 private:
-    Point startPoint; // Starting point of the path
-    Point endPoint;   // Ending point of the path
+    // Helper function to round points to the nearest resolution
+    void roundPointsToResolution(Point &point);
+
+    // Helper function to get neighbors of a point
+    std::vector<Point> getNeighbors(const Point &point);
+
+    // Member variables
+    Point startPoint;        // Starting point of the path
+    Point endPoint;          // Ending point of the path
     std::vector<Point> path; // Vector to store the path points
+
+    float _xy_resolution;    // Resolution for XY coordinates
+    float _theta_resolution; // Resolution for theta
 };
