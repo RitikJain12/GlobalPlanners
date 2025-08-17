@@ -1,7 +1,7 @@
 #include "a_star.h"
 
 AStar::AStar(float xy_resolution, float theta_resolution)
-    : startPoint(0.0f, 0.0f, 0.0f), endPoint(0.0f, 0.0f, 0.0f),
+    : startNode(Point()), endNode(Point()),
       _xy_resolution(xy_resolution), _theta_resolution(theta_resolution)
 {
     float theta_threshold = M_PI / _theta_resolution; // Convert resolution to radians
@@ -17,28 +17,28 @@ void AStar::roundPointsToResolution(Point &point)
     point.theta = std::round(point.theta / _theta_resolution) * _theta_resolution;
 }
 
-void AStar::setStartPoint(const Point &start)
+void AStar::setStartNode(const Point &start)
 {
-    startPoint = start;
-    roundPointsToResolution(startPoint);
+    startNode = Node(start);
+    roundPointsToResolution(startNode.point);
 }
 
-void AStar::setStartPoint(float x, float y, float theta)
+void AStar::setStartNode(float x, float y, float theta)
 {
-    startPoint = Point(x, y, theta);
-    roundPointsToResolution(startPoint);
+    startNode = Node(Point(x, y, theta));
+    roundPointsToResolution(startNode.point);
 }
 
-void AStar::setEndPoint(const Point &end)
+void AStar::setEndNode(const Point &end)
 {
-    endPoint = end;
-    roundPointsToResolution(endPoint);
+    endNode = Node(end);
+    roundPointsToResolution(endNode.point);
 }
 
-void AStar::setEndPoint(float x, float y, float theta)
+void AStar::setEndNode(float x, float y, float theta)
 {
-    endPoint = Point(x, y, theta);
-    roundPointsToResolution(endPoint);
+    endNode = Point(x, y, theta);
+    roundPointsToResolution(endNode.point);
 }
 
 std::vector<Point> AStar::getNeighbors(const Point &point)

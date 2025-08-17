@@ -1,7 +1,8 @@
 #pragma once
 
-#include "point.h"
 #include <vector>
+#include "point.h"
+#include "node.h"
 
 class AStar
 {
@@ -10,16 +11,16 @@ public:
     AStar(float xy_resolution = 1.0f, float theta_resolution = 8.0f);
 
     // Method to set the start point
-    void setStartPoint(const Point &start);
+    void setStartNode(const Point &start);
 
     // Method to set the start point with coordinates
-    void setStartPoint(float x, float y, float theta);
+    void setStartNode(float x, float y, float theta);
 
     // Method to set the end point
-    void setEndPoint(const Point &end);
+    void setEndNode(const Point &end);
 
     // Method to set the end point with coordinates
-    void setEndPoint(float x, float y, float theta);
+    void setEndNode(float x, float y, float theta);
 
     // Method to get the path
     std::vector<Point> getPath();
@@ -32,8 +33,8 @@ private:
     std::vector<Point> getNeighbors(const Point &point);
 
     // Member variables
-    Point startPoint;        // Starting point of the path
-    Point endPoint;          // Ending point of the path
+    Node startNode;         // Starting point of the path
+    Node endNode;           // Ending point of the path
     std::vector<Point> path; // Vector to store the path points
 
     float _xy_resolution;    // Resolution for XY coordinates
