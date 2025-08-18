@@ -26,6 +26,9 @@ public:
     // Method to set the end point with coordinates
     void setEndNode(float x, float y, float theta);
 
+    // Method to set the map
+    void setMap(const std::vector<int> &map, int width, int height);
+
     // Method to get the path
     bool getPath(std::vector<Point> &path);
 
@@ -42,11 +45,18 @@ private:
     // Helper function to calculate costs between two nodes
     float calculateCosts(const Node &currentNode, const Node &neighborNode);
 
+    // Helper function to check for collisions
+    bool checkCollision(const Point &point);
+
     // Member variables
-    Node startNode; // Starting point of the path
-    Node endNode;   // Ending point of the path
+    Node _startNode; // Starting point of the path
+    Node _endNode;   // Ending point of the path
 
     float _xy_resolution;     // Resolution for XY coordinates
     float _theta_resolution;  // Resolution for theta
     float _theta_least_count; // Least count for theta resolution
+
+    std::vector<int> _map;    // Map representation
+    int _mapWidth;            // Width of the map
+    int _mapHeight;           // Height of the map
 };
