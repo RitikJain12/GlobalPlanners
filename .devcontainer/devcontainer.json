@@ -24,7 +24,8 @@
                 "ms-azuretools.vscode-docker",
                 "redhat.vscode-yaml",
                 "eamodio.gitlens",
-                "ms-vscode.cpptools"
+                "ms-vscode.cpptools",
+                "redhat.vscode-xml"
             ],
             "settings": {
                 "editor.formatOnSave": true,
