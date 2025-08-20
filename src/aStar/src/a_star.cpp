@@ -14,7 +14,15 @@ void AStar::roundPointsToResolution(Point &point)
 {
     point.x = std::round(point.x / _xy_resolution) * _xy_resolution;
     point.y = std::round(point.y / _xy_resolution) * _xy_resolution;
-    point.theta = std::round(point.theta / _theta_resolution) * _theta_resolution;
+
+    while (point.theta < 0 || point.theta >= (2 * M_PI))
+    {
+        if (point.theta < 0)
+            point.theta += (2 * M_PI); // Normalize theta to be within [0, 2π]
+        else if (point.theta >= (2 * M_PI))
+            point.theta -= (2 * M_PI);
+    }
+    point.theta = std::round(point.theta / _theta_least_count) * _theta_least_count;
 }
 
 void AStar::setStartNode(const Point &start)
@@ -69,12 +77,9 @@ std::vector<Point> AStar::getNeighbors(const Point &point)
     // Generate neighbors based on the heading angle and resolution
 
     // Add neighbors in the theta direction
-    for (float dtheta = 0; dtheta <= (2 * M_PI); dtheta += ((2 * M_PI) / _theta_resolution))
+    for (float dtheta = _theta_least_count; dtheta < (2 * M_PI); dtheta += _theta_least_count)
     {
-        if (dtheta == 0.0f)
-            continue; // Skip the current point
-
-        Point neighbor(point.x, point.y, point.theta + dtheta);
+        Point neighbor(point.x, point.y, (point.theta + dtheta));
         roundPointsToResolution(neighbor);
         neighbors.push_back(neighbor);
     }
