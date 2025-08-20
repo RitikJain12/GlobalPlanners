@@ -97,7 +97,9 @@ std::vector<Point> AStar::getNeighbors(const Point &point)
 
 float AStar::calculateCosts(const Node &currentNode, const Node &neighborNode)
 {
-    return Point::euclideanDistance(currentNode.point, neighborNode.point) + std::abs(currentNode.point.theta - neighborNode.point.theta) / _theta_least_count;
+    float distance = Point::euclideanDistance(currentNode.point, neighborNode.point);
+    float angleDifference = std::abs(currentNode.point.theta - neighborNode.point.theta) / _theta_least_count;
+    return distance + angleDifference;
 }
 
 void AStar::backtrackPath(std::vector<Point> &path)
@@ -114,6 +116,17 @@ void AStar::backtrackPath(std::vector<Point> &path)
 
 bool AStar::getPath(std::vector<Point> &path)
 {
+    if (_map.empty() || _mapWidth == 0 || _mapHeight == 0)
+    {
+        return false; // No map set
+    }
+
+    if (_startNode == _endNode)
+    {
+        path.push_back(_startNode);
+        return true; // Start and end points are the same
+    }
+
     std::priority_queue<Node, std::vector<Node>, std::greater<Node>> openList;
     std::unordered_set<Node> openSet;
     std::unordered_set<Node> closedSet;
