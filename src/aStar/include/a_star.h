@@ -48,7 +48,9 @@ private:
     void backtrackPath(std::vector<Point> &path, Node *endNode);
 
     // Helper function to calculate costs between two nodes
-    float calculateCosts(const Node &currentNode, const Node &neighborNode);
+    float calculateTravelCost(const Node &currentNode, const Node &neighborNode);
+
+    float calculateHeuristic(const Node &currentNode);
 
     // Helper function to check for collisions
     bool checkCollision(const Point &point);
@@ -68,8 +70,8 @@ private:
     float _theta_least_count; // Least count for theta resolution
 
     std::vector<int8_t> _map; // Map representation
-    int _map_width;            // Width of the map
-    int _map_height;           // Height of the map
+    int _map_width;           // Width of the map
+    int _map_height;          // Height of the map
 
     std::vector<Node> _node_data;       // List of nodes used in the algorithm
     std::vector<Node *> _node_position; // Pointers to nodes for quick access

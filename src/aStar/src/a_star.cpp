@@ -114,11 +114,17 @@ std::vector<Point> AStar::getNeighbors(const Point &point)
     return neighbors;
 }
 
-float AStar::calculateCosts(const Node &currentNode, const Node &neighborNode)
+float AStar::calculateTravelCost(const Node &currentNode, const Node &neighborNode)
 {
     float distance = Point::euclideanDistance(currentNode.point, neighborNode.point);
     float angleDifference = std::abs(currentNode.point.theta - neighborNode.point.theta) / _theta_least_count;
     return distance + angleDifference;
+}
+
+float AStar::calculateHeuristic(const Node &currentNode)
+{
+    // Using Euclidean distance as heuristic
+    return Point::euclideanDistance(currentNode.point, _end_point);
 }
 
 void AStar::backtrackPath(std::vector<Point> &path, Node *currentNode)
@@ -150,7 +156,7 @@ bool AStar::getPath(std::vector<Point> &path)
 
     Node startNode = Node(_start_point);
     startNode.g = 0.0f; // Cost from start to start is zero
-    startNode.h = Point::euclideanDistance(_start_point, _end_point);
+    startNode.h = calculateHeuristic(startNode);
     startNode.f = startNode.g + startNode.h;
 
     _node_data[node_data_index] = startNode;
@@ -187,8 +193,8 @@ bool AStar::getPath(std::vector<Point> &path)
             }
 
             // Calculate costs
-            float temp_g = currentNode->g + calculateCosts(*currentNode, *neighbor);
-            float temp_h = Point::euclideanDistance(neighbor->point, _end_point);
+            float temp_g = currentNode->g + calculateTravelCost(*currentNode, *neighbor);
+            float temp_h = calculateHeuristic(*neighbor);
             float temp_f = temp_g + temp_h;
 
             if (temp_f < neighbor->f)
