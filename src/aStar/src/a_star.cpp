@@ -54,6 +54,25 @@ void AStar::setMap(const std::vector<int8_t> &map, int width, int height)
     _map = map;
     _mapWidth = width / _xy_resolution;   // Convert width to number of grid cells
     _mapHeight = height / _xy_resolution; // Convert height to number of grid cells
+
+    _node_data.reserve(_mapWidth * _mapHeight * _theta_resolution);             // Reserve space for nodes
+    _node_position.resize(_mapWidth * _mapHeight * _theta_resolution, nullptr); // Initialize node pointers
+}
+
+void AStar::setNodeAtPose(const Point &point, Node *node)
+{
+    int index = (static_cast<int>(point.theta / _theta_least_count)) +
+                (static_cast<int>(point.x / _xy_resolution) * _theta_resolution) +
+                (static_cast<int>(point.y / _xy_resolution) * _mapWidth * _theta_resolution);
+    _node_position[index] = node;
+}
+
+Node *AStar::getNodeAtPose(const Point &point)
+{
+    int index = (static_cast<int>(point.theta / _theta_least_count)) +
+                (static_cast<int>(point.x / _xy_resolution) * _theta_resolution) +
+                (static_cast<int>(point.y / _xy_resolution) * _mapWidth * _theta_resolution);
+    return _node_position[index];
 }
 
 bool AStar::checkCollision(const Point &point)
@@ -102,7 +121,7 @@ float AStar::calculateCosts(const Node &currentNode, const Node &neighborNode)
     return distance + angleDifference;
 }
 
-void AStar::backtrackPath(std::vector<Point> &path)
+void AStar::backtrackPath(std::vector<Point> &path, Node *currentNode)
 {
     while (currentNode != nullptr)
     {
@@ -125,49 +144,62 @@ bool AStar::getPath(std::vector<Point> &path)
         return true; // Start and end points are the same
     }
 
-    std::priority_queue<Node, std::vector<Node>, std::greater<Node>> openList;
-    std::unordered_set<Node> openSet;
-    std::unordered_set<Node> closedSet;
+    std::priority_queue<Node *, std::vector<Node *>, std::greater<Node *>> openList;
 
-    openList.push(_startNode);
-    openSet.insert(_startNode);
+    int node_data_index = 0;
+
+    Node startNode = Node(_startNode);
+    startNode.g = 0.0f; // Cost from start to start is zero
+    startNode.h = Point::euclideanDistance(_startNode, _endNode);
+    startNode.f = startNode.g + startNode.h;
+
+    _node_data[node_data_index] = startNode;
+    setNodeAtPose(_startNode, &_node_data[node_data_index]);
+    openList.push(&_node_data[node_data_index]);
+    node_data_index++;
 
     while (!openList.empty())
     {
-        Node currentNode = openList.top();
+        Node *currentNode = openList.top();
         openList.pop();
-        openSet.erase(currentNode);
 
         // Check if we reached the end node
-        if (currentNode.point == _endNode.point)
+        if (currentNode->point == _endNode)
         {
             // Reconstruct the path
             backtrackPath(path, currentNode);
             return true; // Path found
         }
 
-        closedSet.insert(currentNode);
-
         // Get neighbors of the current node
-        std::vector<Point> neighbors = getNeighbors(currentNode.point);
+        std::vector<Point> neighbors = getNeighbors(currentNode->point);
         for (const Point &neighborPoint : neighbors)
         {
-            Node neighbor(neighborPoint, &currentNode);
+            Node *neighbor = getNodeAtPose(neighborPoint);
 
-            // Skip if neighbor is already in closed set
-            if (closedSet.find(neighbor) != closedSet.end())
-                continue;
+            if (neighbor == nullptr)
+            {
+                // Create a new node if it doesn't exist
+                _node_data[node_data_index] = Node(neighborPoint);
+                neighbor = &_node_data[node_data_index];
+                node_data_index++;
+                setNodeAtPose(neighborPoint, neighbor);
+            }
 
             // Calculate costs
-            neighbor.g = currentNode.g + calculateCosts(currentNode, neighbor);
-            neighbor.h = Point::euclideanDistance(neighbor.point, _endNode.point);
-            neighbor.f = neighbor.g + neighbor.h;
+            float temp_g = currentNode->g + calculateCosts(*currentNode, *neighbor);
+            float temp_h = Point::euclideanDistance(neighbor->point, _endNode);
+            float temp_f = temp_g + temp_h;
 
-            // If neighbor is not in open set, add it
-            if (openSet.find(neighbor) == openSet.end())
+            if (temp_f < neighbor->f)
             {
+                // Update the neighbor node with new costs
+                neighbor->g = temp_g;
+                neighbor->h = temp_h;
+                neighbor->f = temp_f;
+                neighbor->parent = currentNode;
+
                 openList.push(neighbor);
-                openSet.insert(neighbor);
             }
         }
     }

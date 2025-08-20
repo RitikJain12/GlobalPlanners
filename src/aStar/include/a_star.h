@@ -53,6 +53,12 @@ private:
     // Helper function to check for collisions
     bool checkCollision(const Point &point);
 
+    // Helper function to set a node at a specific pose
+    void setNodeAtPose(const Point &point, Node *node);
+
+    // Helper function to get a node at a specific pose
+    Node *getNodeAtPose(const Point &point);
+
     // Member variables
     Point _startNode; // Starting point of the path
     Point _endNode;   // Ending point of the path
@@ -64,4 +70,7 @@ private:
     std::vector<int8_t> _map; // Map representation
     int _mapWidth;            // Width of the map
     int _mapHeight;           // Height of the map
+
+    std::vector<Node> _node_data;       // List of nodes used in the algorithm
+    std::vector<Node *> _node_position; // Pointers to nodes for quick access
 };
