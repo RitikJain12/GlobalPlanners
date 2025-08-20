@@ -41,7 +41,7 @@ void AStar::setEndNode(float x, float y, float theta)
     roundPointsToResolution(_endNode.point);
 }
 
-void AStar::setMap(const std::vector<int> &map, int width, int height)
+void AStar::setMap(const std::vector<int8_t> &map, int width, int height)
 {
     _map = map;
     _mapWidth = width / _xy_resolution;   // Convert width to number of grid cells

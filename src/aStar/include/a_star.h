@@ -5,6 +5,7 @@
 #include <queue>
 #include <unordered_set>
 #include <functional>
+#include <stdint.h>
 #include "point.h"
 #include "node.h"
 
@@ -27,7 +28,7 @@ public:
     void setEndNode(float x, float y, float theta);
 
     // Method to set the map
-    void setMap(const std::vector<int> &map, int width, int height);
+    void setMap(const std::vector<int8_t> &map, int width, int height);
 
     // Method to get the path
     bool getPath(std::vector<Point> &path);
@@ -56,7 +57,7 @@ private:
     float _theta_resolution;  // Resolution for theta
     float _theta_least_count; // Least count for theta resolution
 
-    std::vector<int> _map;    // Map representation
+    std::vector<int8_t> _map; // Map representation
     int _mapWidth;            // Width of the map
     int _mapHeight;           // Height of the map
 };
