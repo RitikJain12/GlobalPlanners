@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <math.h>
 #include <vector>
 #include <queue>
@@ -14,6 +15,9 @@ class AStar
 public:
     // Constructor
     AStar(float xy_resolution = 1.0f, float theta_resolution = 8.0f);
+
+    // Destructor
+    ~AStar() = default;
 
     // Method to set the start point
     void setStartNode(const Point &start);
@@ -50,8 +54,8 @@ private:
     bool checkCollision(const Point &point);
 
     // Member variables
-    Node _startNode; // Starting point of the path
-    Node _endNode;   // Ending point of the path
+    Point _startNode; // Starting point of the path
+    Point _endNode;   // Ending point of the path
 
     float _xy_resolution;     // Resolution for XY coordinates
     float _theta_resolution;  // Resolution for theta

@@ -27,26 +27,26 @@ void AStar::roundPointsToResolution(Point &point)
 
 void AStar::setStartNode(const Point &start)
 {
-    _startNode = Node(start);
-    roundPointsToResolution(_startNode.point);
+    _startNode = Point(start);
+    roundPointsToResolution(_startNode);
 }
 
 void AStar::setStartNode(float x, float y, float theta)
 {
-    _startNode = Node(Point(x, y, theta));
-    roundPointsToResolution(_startNode.point);
+    _startNode = Point(x, y, theta);
+    roundPointsToResolution(_startNode);
 }
 
 void AStar::setEndNode(const Point &end)
 {
-    _endNode = Node(end);
-    roundPointsToResolution(_endNode.point);
+    _endNode = Point(end);
+    roundPointsToResolution(_endNode);
 }
 
 void AStar::setEndNode(float x, float y, float theta)
 {
     _endNode = Point(x, y, theta);
-    roundPointsToResolution(_endNode.point);
+    roundPointsToResolution(_endNode);
 }
 
 void AStar::setMap(const std::vector<int8_t> &map, int width, int height)
