@@ -2,6 +2,7 @@
 
 #include "point.h"
 #include <math.h>
+#include <float.h>
 #include <unordered_set>
 
 class Node
@@ -19,9 +20,6 @@ public:
 
     // Comparison operator for priority queue (min-heap based on f value)
     bool operator>(const Node &other) const;
-
-    // Equality operator for comparing two Node objects
-    bool operator==(const Node &other) const;
 };
 
 namespace std
