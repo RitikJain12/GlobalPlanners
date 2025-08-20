@@ -45,7 +45,7 @@ private:
     std::vector<Point> getNeighbors(const Point &point);
 
     // Helper function to backtrack the path from the end node to the start node
-    void backtrackPath(std::vector<Point> &path);
+    void backtrackPath(std::vector<Point> &path, Node *endNode);
 
     // Helper function to calculate costs between two nodes
     float calculateCosts(const Node &currentNode, const Node &neighborNode);

@@ -104,8 +104,6 @@ float AStar::calculateCosts(const Node &currentNode, const Node &neighborNode)
 
 void AStar::backtrackPath(std::vector<Point> &path)
 {
-    Node *currentNode = &_endNode;
-
     while (currentNode != nullptr)
     {
         path.push_back(currentNode->point);
@@ -144,7 +142,7 @@ bool AStar::getPath(std::vector<Point> &path)
         if (currentNode.point == _endNode.point)
         {
             // Reconstruct the path
-            backtrackPath(path);
+            backtrackPath(path, currentNode);
             return true; // Path found
         }
 
