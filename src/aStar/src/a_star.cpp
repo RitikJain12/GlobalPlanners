@@ -82,7 +82,7 @@ bool AStar::checkCollision(const Point &point)
     int index_y = static_cast<int>(point.y / _xy_resolution);
 
     // Check if the point is within the bounds of the map
-    if (index_x < 0 || index_x >= _mapWidth || index_y < 0 || index_y >= _mapHeight)
+    if (index_x < 0 || index_x > _mapWidth || index_y < 0 || index_y > _mapHeight)
         return true; // Out of bounds
 
     // Check if the point collides with an obstacle in the map
@@ -96,9 +96,9 @@ std::vector<Point> AStar::getNeighbors(const Point &point)
     // Generate neighbors based on the heading angle and resolution
 
     // Add neighbors in the theta direction
-    for (float dtheta = _theta_least_count; dtheta < (2 * M_PI); dtheta += _theta_least_count)
+    for (float dtheta = 1; dtheta < _theta_resolution; dtheta += 1)
     {
-        Point neighbor(point.x, point.y, (point.theta + dtheta));
+        Point neighbor(point.x, point.y, (point.theta + (dtheta * _theta_least_count)));
         roundPointsToResolution(neighbor);
         neighbors.push_back(neighbor);
     }
