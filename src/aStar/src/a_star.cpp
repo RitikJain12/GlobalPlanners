@@ -1,7 +1,7 @@
 #include "a_star.h"
 
 AStar::AStar(float xy_resolution, float theta_resolution)
-    : _startNode(Point()), _endNode(Point()),
+    : _start_point(Point()), _end_point(Point()),
       _xy_resolution(xy_resolution), _theta_resolution(theta_resolution)
 {
     _theta_least_count = (2 * M_PI) / _theta_resolution; // Convert resolution to radians
@@ -25,45 +25,45 @@ void AStar::roundPointsToResolution(Point &point)
     point.theta = std::round(point.theta / _theta_least_count) * _theta_least_count;
 }
 
-void AStar::setStartNode(const Point &start)
+void AStar::setStartPoint(const Point &start)
 {
-    _startNode = Point(start);
-    roundPointsToResolution(_startNode);
+    _start_point = Point(start);
+    roundPointsToResolution(_start_point);
 }
 
-void AStar::setStartNode(float x, float y, float theta)
+void AStar::setStartPoint(float x, float y, float theta)
 {
-    _startNode = Point(x, y, theta);
-    roundPointsToResolution(_startNode);
+    _start_point = Point(x, y, theta);
+    roundPointsToResolution(_start_point);
 }
 
-void AStar::setEndNode(const Point &end)
+void AStar::setGoal(const Point &end)
 {
-    _endNode = Point(end);
-    roundPointsToResolution(_endNode);
+    _end_point = Point(end);
+    roundPointsToResolution(_end_point);
 }
 
-void AStar::setEndNode(float x, float y, float theta)
+void AStar::setGoal(float x, float y, float theta)
 {
-    _endNode = Point(x, y, theta);
-    roundPointsToResolution(_endNode);
+    _end_point = Point(x, y, theta);
+    roundPointsToResolution(_end_point);
 }
 
 void AStar::setMap(const std::vector<int8_t> &map, int width, int height)
 {
     _map = map;
-    _mapWidth = width / _xy_resolution;   // Convert width to number of grid cells
-    _mapHeight = height / _xy_resolution; // Convert height to number of grid cells
+    _map_width = width / _xy_resolution;   // Convert width to number of grid cells
+    _map_height = height / _xy_resolution; // Convert height to number of grid cells
 
-    _node_data.reserve(_mapWidth * _mapHeight * _theta_resolution);             // Reserve space for nodes
-    _node_position.resize(_mapWidth * _mapHeight * _theta_resolution, nullptr); // Initialize node pointers
+    _node_data.reserve(_map_width * _map_height * _theta_resolution);             // Reserve space for nodes
+    _node_position.resize(_map_width * _map_height * _theta_resolution, nullptr); // Initialize node pointers
 }
 
 void AStar::setNodeAtPose(const Point &point, Node *node)
 {
     int index = (static_cast<int>(point.theta / _theta_least_count)) +
                 (static_cast<int>(point.x / _xy_resolution) * _theta_resolution) +
-                (static_cast<int>(point.y / _xy_resolution) * _mapWidth * _theta_resolution);
+                (static_cast<int>(point.y / _xy_resolution) * _map_width * _theta_resolution);
     _node_position[index] = node;
 }
 
@@ -71,7 +71,7 @@ Node *AStar::getNodeAtPose(const Point &point)
 {
     int index = (static_cast<int>(point.theta / _theta_least_count)) +
                 (static_cast<int>(point.x / _xy_resolution) * _theta_resolution) +
-                (static_cast<int>(point.y / _xy_resolution) * _mapWidth * _theta_resolution);
+                (static_cast<int>(point.y / _xy_resolution) * _map_width * _theta_resolution);
     return _node_position[index];
 }
 
@@ -82,11 +82,11 @@ bool AStar::checkCollision(const Point &point)
     int index_y = static_cast<int>(point.y / _xy_resolution);
 
     // Check if the point is within the bounds of the map
-    if (index_x < 0 || index_x > _mapWidth || index_y < 0 || index_y > _mapHeight)
+    if (index_x < 0 || index_x >= _map_width || index_y < 0 || index_y >= _map_height)
         return true; // Out of bounds
 
     // Check if the point collides with an obstacle in the map
-    int index = index_y * _mapWidth + index_x;
+    int index = index_y * _map_width + index_x;
     return _map[index] != 0;
 }
 
@@ -133,14 +133,14 @@ void AStar::backtrackPath(std::vector<Point> &path, Node *currentNode)
 
 bool AStar::getPath(std::vector<Point> &path)
 {
-    if (_map.empty() || _mapWidth == 0 || _mapHeight == 0)
+    if (_map.empty() || _map_width == 0 || _map_height == 0)
     {
         return false; // No map set
     }
 
-    if (_startNode == _endNode)
+    if (_start_point == _end_point)
     {
-        path.push_back(_startNode);
+        path.push_back(_start_point);
         return true; // Start and end points are the same
     }
 
@@ -148,13 +148,13 @@ bool AStar::getPath(std::vector<Point> &path)
 
     int node_data_index = 0;
 
-    Node startNode = Node(_startNode);
+    Node startNode = Node(_start_point);
     startNode.g = 0.0f; // Cost from start to start is zero
-    startNode.h = Point::euclideanDistance(_startNode, _endNode);
+    startNode.h = Point::euclideanDistance(_start_point, _end_point);
     startNode.f = startNode.g + startNode.h;
 
     _node_data[node_data_index] = startNode;
-    setNodeAtPose(_startNode, &_node_data[node_data_index]);
+    setNodeAtPose(_start_point, &_node_data[node_data_index]);
     openList.push(&_node_data[node_data_index]);
     node_data_index++;
 
@@ -164,7 +164,7 @@ bool AStar::getPath(std::vector<Point> &path)
         openList.pop();
 
         // Check if we reached the end node
-        if (currentNode->point == _endNode)
+        if (currentNode->point == _end_point)
         {
             // Reconstruct the path
             backtrackPath(path, currentNode);
@@ -188,7 +188,7 @@ bool AStar::getPath(std::vector<Point> &path)
 
             // Calculate costs
             float temp_g = currentNode->g + calculateCosts(*currentNode, *neighbor);
-            float temp_h = Point::euclideanDistance(neighbor->point, _endNode);
+            float temp_h = Point::euclideanDistance(neighbor->point, _end_point);
             float temp_f = temp_g + temp_h;
 
             if (temp_f < neighbor->f)

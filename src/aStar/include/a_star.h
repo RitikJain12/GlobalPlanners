@@ -20,16 +20,16 @@ public:
     ~AStar() = default;
 
     // Method to set the start point
-    void setStartNode(const Point &start);
+    void setStartPoint(const Point &start);
 
     // Method to set the start point with coordinates
-    void setStartNode(float x, float y, float theta);
+    void setStartPoint(float x, float y, float theta);
 
     // Method to set the end point
-    void setEndNode(const Point &end);
+    void setGoal(const Point &end);
 
     // Method to set the end point with coordinates
-    void setEndNode(float x, float y, float theta);
+    void setGoal(float x, float y, float theta);
 
     // Method to set the map
     void setMap(const std::vector<int8_t> &map, int width, int height);
@@ -60,16 +60,16 @@ private:
     Node *getNodeAtPose(const Point &point);
 
     // Member variables
-    Point _startNode; // Starting point of the path
-    Point _endNode;   // Ending point of the path
+    Point _start_point; // Starting point of the path
+    Point _end_point;   // Ending point of the path
 
     float _xy_resolution;     // Resolution for XY coordinates
     float _theta_resolution;  // Resolution for theta
     float _theta_least_count; // Least count for theta resolution
 
     std::vector<int8_t> _map; // Map representation
-    int _mapWidth;            // Width of the map
-    int _mapHeight;           // Height of the map
+    int _map_width;            // Width of the map
+    int _map_height;           // Height of the map
 
     std::vector<Node> _node_data;       // List of nodes used in the algorithm
     std::vector<Node *> _node_position; // Pointers to nodes for quick access

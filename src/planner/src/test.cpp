@@ -50,8 +50,8 @@ int main(int argc, char *argv[])
 
     AStar a_star(map.info.resolution, 8.0f);
     a_star.setMap(map.data, map.info.width, map.info.height);
-    a_star.setStartNode(0.0f, 0.0f, 0.0f);
-    a_star.setEndNode(9.0f, 9.0f, 0.0f);
+    a_star.setStartPoint(0.0f, 0.0f, 0.0f);
+    a_star.setGoal(9.0f, 9.0f, 0.0f);
 
     nav_msgs::msg::Path path;
 
