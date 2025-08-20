@@ -10,11 +10,14 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(nav_msgs REQUIRED)
 
-add_executable(pub_map src/test.cpp)
-ament_target_dependencies(pub_map rclcpp nav_msgs)
+add_subdirectory(../aStar ${CMAKE_BINARY_DIR}/aStar_build)
+
+add_executable(test_plan src/test.cpp)
+target_link_libraries(test_plan aStar utils)
+ament_target_dependencies(test_plan rclcpp nav_msgs)
 
 install(TARGETS
-  pub_map
+  test_plan
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
