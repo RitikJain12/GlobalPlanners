@@ -28,6 +28,13 @@ bool Point::operator==(const Point &other) const
            (std::abs(theta - other.theta) < _theta_threshold);
 }
 
+void Point::operator=(const Point &other)
+{
+    x = other.x;
+    y = other.y;
+    theta = other.theta;
+}
+
 void Point::setThreshold(float newThreshold)
 {
     _threshold = newThreshold;

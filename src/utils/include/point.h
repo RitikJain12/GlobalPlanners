@@ -26,6 +26,9 @@ public:
     // Equality operator for comparing two Point objects
     bool operator==(const Point &other) const;
 
+    // Assignment operator
+    void operator=(const Point &other);
+
     // Member variables
     float x;
     float y;
