@@ -1,4 +1,5 @@
 {
+    "initializeCommand": "bash -c 'source container_entrypoint.sh'",
     "build": {
         "dockerfile": "Dockerfile",
         "context": ".."
