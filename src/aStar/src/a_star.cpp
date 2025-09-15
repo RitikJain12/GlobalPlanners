@@ -1,6 +1,6 @@
 #include "a_star.h"
 
-AStar::AStar(float xy_resolution, float theta_resolution)
+AStar::AStar(const float xy_resolution, const float theta_resolution)
     : _start_point(Point()), _end_point(Point()),
       _xy_resolution(xy_resolution), _theta_resolution(theta_resolution)
 {
