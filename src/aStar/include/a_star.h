@@ -35,33 +35,33 @@ public:
     void setMap(const std::vector<int8_t> &map, int width, int height);
 
     // Method to get the path
-    virtual bool getPath(std::vector<Point> &path);
+    bool getPath(std::vector<Point> &path);
 
 private:
-    // Helper function to calculate costs between two nodes
-    float calculateTravelCost(const Node &currentNode, const Node &neighborNode);
-
-    // Helper function to calculate heuristic costs for a node
-    float calculateHeuristic(const Node &currentNode);
-
-    // Helper function to get neighbors of a point
-    std::vector<Point> getNeighbors(const Point &point);
-
-protected:
-    // Helper function to round points to the nearest resolution
-    void roundPointsToResolution(Point &point);
-
     // Helper function to backtrack the path from the end node to the start node
     void backtrackPath(std::vector<Point> &path, Node *endNode);
-
-    // Helper function to check for collisions
-    bool checkCollision(const Point &point);
 
     // Helper function to set a node at a specific pose
     void setNodeAtPose(const Point &point, Node *node);
 
     // Helper function to get a node at a specific pose
     Node *getNodeAtPose(const Point &point);
+
+protected:
+    // Helper function to round points to the nearest resolution
+    void roundPointsToResolution(Point &point);
+
+    // Helper function to check for collisions
+    bool checkCollision(const Point &point);
+
+    // Helper function to calculate costs between two nodes
+    virtual float calculateTravelCost(const Node &currentNode, const Node &neighborNode);
+
+    // Helper function to calculate heuristic costs for a node
+    virtual float calculateHeuristic(const Node &currentNode);
+
+    // Helper function to get neighbors of a point
+    virtual std::vector<Point> getNeighbors(const Point &point);
 
     // Member variables
     Point _start_point; // Starting point of the path
