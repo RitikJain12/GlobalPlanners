@@ -7,7 +7,11 @@ public:
 
 private:
     // Helper function to get neighbors of a point
-    std::vector<Point> getNeighbors(const Point &point);
+    std::vector<Point> getNeighbors(const Point &point) override;
+
+    float calculateTravelCost(const Node &currentNode, const Node &neighborNode) override;
+
+    float calculateHeuristic(const Node &currentNode) override;
 
     bool _allow_reverse;
     float _min_velocity;
