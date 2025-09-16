@@ -7,6 +7,7 @@
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include "a_star.h"
+#include "hybrid_a_star.h"
 
 using namespace std::chrono_literals;
 
@@ -41,6 +42,27 @@ private:
 int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);
+
+    bool use_astar = false;
+    bool use_hybrid_astar = false;
+    std::string mode;
+
+    if (argc > 1)
+    {
+        mode = argv[1];
+    }
+
+    if (mode == "hybrid")
+    {
+        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Using hybrid astar");
+        use_hybrid_astar = true;
+    }
+    else
+    {
+        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Using astar");
+        use_astar = true;
+    }
+
     nav_msgs::msg::OccupancyGrid map;
     map.header.frame_id = "map";
     map.info.resolution = 1.0;
@@ -48,32 +70,49 @@ int main(int argc, char *argv[])
     map.info.height = 10;
     map.data.resize(map.info.width * map.info.height, 0); // Initialize with zeros
 
-    AStar a_star(map.info.resolution, 8.0f);
-    a_star.setMap(map.data, map.info.width, map.info.height);
-    a_star.setStartPoint(0.0f, 0.0f, 0.0f);
-    a_star.setGoal(9.0f, 9.0f, 0.0f);
-
-    nav_msgs::msg::Path path;
-
     std::vector<Point> path_points;
-    if (a_star.getPath(path_points))
+
+    if (use_astar)
     {
-        path.header.frame_id = "map";
-        for (const auto &point : path_points)
+        AStar a_star(map.info.resolution, 8.0f);
+        a_star.setMap(map.data, map.info.width, map.info.height);
+        a_star.setStartPoint(0.0f, 0.0f, 0.0f);
+        a_star.setGoal(9.0f, 9.0f, 0.0f);
+
+        if (!a_star.getPath(path_points))
         {
-            geometry_msgs::msg::PoseStamped pose;
-            pose.header.frame_id = "map";
-            pose.pose.position.x = point.x;
-            pose.pose.position.y = point.y;
-            pose.pose.orientation.z = sin(point.theta / 2.0);
-            pose.pose.orientation.w = cos(point.theta / 2.0);
-            std::cout << "Path point: (" << point.x << ", " << point.y << ", " << point.theta << ")" << std::endl;
-            path.poses.push_back(pose);
+            RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "No path found");
+            exit(1);
         }
     }
-    else
+    else if (use_hybrid_astar)
     {
-        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "No path found");
+        AStar *a_star = new HybridAStar(0.1f, 8.0f);
+        a_star->setMap(map.data, map.info.width, map.info.height);
+        a_star->setStartPoint(0.0f, 0.0f, 0.0f);
+        a_star->setGoal(9.0f, 9.0f, 0.0f);
+
+        if (!a_star->getPath(path_points))
+        {
+            RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "No path found");
+            delete a_star;
+            exit(1);
+        }
+        delete a_star;
+    }
+
+    nav_msgs::msg::Path path;
+    path.header.frame_id = "map";
+    for (const auto &point : path_points)
+    {
+        geometry_msgs::msg::PoseStamped pose;
+        pose.header.frame_id = "map";
+        pose.pose.position.x = point.x;
+        pose.pose.position.y = point.y;
+        pose.pose.orientation.z = sin(point.theta / 2.0);
+        pose.pose.orientation.w = cos(point.theta / 2.0);
+        std::cout << "Path point: (" << point.x << ", " << point.y << ", " << point.theta << ")" << std::endl;
+        path.poses.push_back(pose);
     }
 
     rclcpp::spin(std::make_shared<MinimalPublisher>(map, path));
