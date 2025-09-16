@@ -10,4 +10,6 @@ private:
     std::vector<Point> getNeighbors(const Point &point);
 
     bool _allow_reverse;
+    float _min_velocity;
+    float _wheelbase;
 };
