@@ -49,12 +49,17 @@ std::vector<Point> HybridAStar::getNeighbors(const Point &point)
 float HybridAStar::calculateTravelCost(const Node &currentNode, const Node &neighborNode)
 {
     float distance = Point::euclideanDistance(currentNode.point, neighborNode.point);
-    float angleDifference = std::abs(currentNode.point.theta - neighborNode.point.theta) / _theta_least_count;
-    return distance + angleDifference;
+    float angleDifference = currentNode.point.theta - neighborNode.point.theta;
+    Point::roundTheta(angleDifference);
+    return distance + (angleDifference / _theta_least_count);
 }
 
 float HybridAStar::calculateHeuristic(const Node &currentNode)
 {
     // Using Euclidean distance as heuristic
+    float dist = Point::euclideanDistance(currentNode.point, _end_point);
+    float angle_diff = Point::slope(currentNode.point, _end_point) - currentNode.point.theta;
+    Point::roundTheta(angle_diff);
+    return dist + (angle_diff / _theta_least_count);
     return Point::euclideanDistance(currentNode.point, _end_point);
 }
