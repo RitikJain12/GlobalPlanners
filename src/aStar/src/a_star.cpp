@@ -61,19 +61,21 @@ void AStar::setMap(const std::vector<int8_t> &map, int width, int height)
     _node_position.resize(_grid_width * _grid_height * _theta_resolution, nullptr); // Initialize node pointers
 }
 
-void AStar::setNodeAtPose(const Point &point, Node *node)
+void AStar::setNodeAtPose(Point point, Node *node)
 {
+    roundPointsToResolution(point);
     int index = (static_cast<int>(point.theta / _theta_least_count)) +
                 (static_cast<int>(point.x / _xy_resolution) * _theta_resolution) +
-                (static_cast<int>(point.y / _xy_resolution) * _map_width * _theta_resolution);
+                (static_cast<int>(point.y / _xy_resolution) * _grid_width * _theta_resolution);
     _node_position[index] = node;
 }
 
-Node *AStar::getNodeAtPose(const Point &point)
+Node *AStar::getNodeAtPose(Point point)
 {
+    roundPointsToResolution(point);
     int index = (static_cast<int>(point.theta / _theta_least_count)) +
                 (static_cast<int>(point.x / _xy_resolution) * _theta_resolution) +
-                (static_cast<int>(point.y / _xy_resolution) * _map_width * _theta_resolution);
+                (static_cast<int>(point.y / _xy_resolution) * _grid_width * _theta_resolution);
     return _node_position[index];
 }
 

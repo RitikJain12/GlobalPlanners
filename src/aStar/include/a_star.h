@@ -42,7 +42,7 @@ private:
     void backtrackPath(std::vector<Point> &path, Node *endNode);
 
     // Helper function to set a node at a specific pose
-    void setNodeAtPose(const Point &point, Node *node);
+    void setNodeAtPose(Point point, Node *node);
 
     // Helper function to get a node at a specific pose
     Node *getNodeAtPose(Point point);
