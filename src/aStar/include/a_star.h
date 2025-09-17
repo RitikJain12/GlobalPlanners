@@ -45,7 +45,10 @@ private:
     void setNodeAtPose(const Point &point, Node *node);
 
     // Helper function to get a node at a specific pose
-    Node *getNodeAtPose(const Point &point);
+    Node *getNodeAtPose(Point point);
+
+    // Check for tollerace
+    bool inTollerance(const Point &point);
 
 protected:
     // Helper function to round points to the nearest resolution

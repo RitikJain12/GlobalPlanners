@@ -170,7 +170,7 @@ bool AStar::getPath(std::vector<Point> &path)
         openList.pop();
 
         // Check if we reached the end node
-        if (currentNode->point == _end_point)
+        if (inTollerance(currentNode->point))
         {
             // Reconstruct the path
             backtrackPath(path, currentNode);
@@ -211,4 +211,17 @@ bool AStar::getPath(std::vector<Point> &path)
     }
 
     return false; // No path found
+}
+
+bool AStar::inTollerance(const Point &point)
+{
+    float dist = Point::euclideanDistance(point, _end_point);
+    float theta_diff = abs(point.theta - _end_point.theta);
+
+    if (dist <= _xy_resolution && theta_diff <= _theta_least_count)
+    {
+        return true;
+    }
+
+    return false;
 }
