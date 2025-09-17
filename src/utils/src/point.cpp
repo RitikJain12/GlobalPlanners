@@ -66,9 +66,9 @@ float Point::slope(const Point &p1, const Point &p2)
     return atan2((p2.y - p1.y), (p2.x - p1.x));
 }
 
-float Point::absDiff(const Point &p1, const Point &p2)
+float Point::absDiff(const float &p1, const float &p2)
 {
-    return std::min((double)abs(p2.theta - p1.theta), ((2 * M_PI) - abs(p2.theta - p1.theta)));
+    return std::min((double)abs(p2 - p1), ((2 * M_PI) - abs(p2 - p1)));
 }
 
 float Point::_threshold = 0.01f;      // Default threshold for floating-point comparison

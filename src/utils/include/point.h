@@ -31,7 +31,7 @@ public:
     static float slope(const Point &p1, const Point &p2);
 
     // calculate absolute diff between angle
-    static float absDiff(const Point &p1, const Point &p2);
+    static float absDiff(const float &p1, const float &p2);
 
     // Equality operator for comparing two Point objects
     bool operator==(const Point &other) const;
