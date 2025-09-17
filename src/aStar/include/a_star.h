@@ -78,3 +78,11 @@ protected:
     std::vector<Node> _node_data;       // List of nodes used in the algorithm
     std::vector<Node *> _node_position; // Pointers to nodes for quick access
 };
+
+struct CompareNode {
+    bool operator()(const Node* a, const Node* b) {
+        // For a min-priority queue, return true if 'a' has a GREATER value than 'b'
+        // (so 'b' is considered "smaller" and will be at the top)
+        return a->f > b->f; 
+    }
+};

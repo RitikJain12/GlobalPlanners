@@ -17,9 +17,6 @@ public:
     float g;      // Cost from start to this node
     float h;      // Heuristic cost from this node to end
     float f;      // Total cost (g + h)
-
-    // Comparison operator for priority queue (min-heap based on f value)
-    bool operator>(const Node &other) const;
 };
 
 namespace std

@@ -150,7 +150,7 @@ bool AStar::getPath(std::vector<Point> &path)
         return true; // Start and end points are the same
     }
 
-    std::priority_queue<Node *, std::vector<Node *>, std::greater<Node *>> openList;
+    std::priority_queue<Node *, std::vector<Node *>, CompareNode> openList;
 
     int node_data_index = 0;
 
