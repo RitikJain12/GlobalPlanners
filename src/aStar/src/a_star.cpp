@@ -52,11 +52,13 @@ void AStar::setGoal(float x, float y, float theta)
 void AStar::setMap(const std::vector<int8_t> &map, int width, int height)
 {
     _map = map;
-    _map_width = width / _xy_resolution;   // Convert width to number of grid cells
-    _map_height = height / _xy_resolution; // Convert height to number of grid cells
+    _map_width = width;
+    _map_height = height;
+    _grid_width = width / _xy_resolution;   // Convert width to number of grid cells
+    _grid_height = height / _xy_resolution; // Convert height to number of grid cells
 
-    _node_data.reserve(_map_width * _map_height * _theta_resolution);             // Reserve space for nodes
-    _node_position.resize(_map_width * _map_height * _theta_resolution, nullptr); // Initialize node pointers
+    _node_data.reserve(_grid_width * _grid_height * _theta_resolution);             // Reserve space for nodes
+    _node_position.resize(_grid_width * _grid_height * _theta_resolution, nullptr); // Initialize node pointers
 }
 
 void AStar::setNodeAtPose(const Point &point, Node *node)
@@ -77,16 +79,19 @@ Node *AStar::getNodeAtPose(const Point &point)
 
 bool AStar::checkCollision(const Point &point)
 {
+    if (point.x < 0 || point.x > _map_width || point.y < 0 || point.y > _map_height)
+        return true;
+
     // Convert point coordinates to grid indices
     int index_x = static_cast<int>(point.x / _xy_resolution);
     int index_y = static_cast<int>(point.y / _xy_resolution);
 
     // Check if the point is within the bounds of the map
-    if (index_x < 0 || index_x >= _map_width || index_y < 0 || index_y >= _map_height)
+    if (index_x < 0 || index_x >= _grid_width || index_y < 0 || index_y >= _grid_height)
         return true; // Out of bounds
 
     // Check if the point collides with an obstacle in the map
-    int index = index_y * _map_width + index_x;
+    int index = index_y * _grid_width + index_x;
     return _map[index] != 0;
 }
 
@@ -139,7 +144,7 @@ void AStar::backtrackPath(std::vector<Point> &path, Node *currentNode)
 
 bool AStar::getPath(std::vector<Point> &path)
 {
-    if (_map.empty() || _map_width == 0 || _map_height == 0)
+    if (_map.empty() || _grid_width == 0 || _grid_height == 0)
     {
         return false; // No map set
     }
