@@ -13,15 +13,17 @@ std::vector<Point> HybridAStar::getNeighbors(const Point &point)
     std::vector<Point> neighbors;
     // Generate neighbors based on the heading angle and resolution
 
+    float dx = _min_velocity * cos(point.theta);
+    float dy = _min_velocity * sin(point.theta);
+
     // Add neighbors in forward direction
-    for (float dtheta = -2; dtheta <= 2; dtheta += 1)
+    for (float steer = -2; steer <= 2; steer += 1)
     {
-        // add kinematics here
-        float x = _min_velocity * cos(point.theta);
-        float y = _min_velocity * sin(point.theta);
-        float theta = _min_velocity * (tan(dtheta * _theta_least_count) / _wheelbase);
-        Point neighbor(x, y, theta);
-        roundPointsToResolution(neighbor);
+        float dtheta = _min_velocity * (tan(steer * _steer_resolution) / _wheelbase);
+        float theta_dash = point.theta + dtheta;
+        Point::roundTheta(theta_dash);
+        Point neighbor((point.x + dx), (point.y + dy), theta_dash);
+        // roundPointsToResolution(neighbor);
 
         // Check for collision before adding to neighbors
         if (!checkCollision(neighbor))
@@ -30,14 +32,10 @@ std::vector<Point> HybridAStar::getNeighbors(const Point &point)
 
     if (_allow_reverse)
     {
-        for (float dtheta = 1; dtheta < _theta_resolution; dtheta += 1)
+        for (float steer = -1; steer <= 1; steer += 1)
         {
-            // add kinematics here
-            float x = (-_min_velocity) * cos(point.theta);
-            float y = (-_min_velocity) * sin(point.theta);
-            float theta = (-_min_velocity) * (tan(dtheta * _theta_least_count) / _wheelbase);
-            Point neighbor(x, y, theta);
-            roundPointsToResolution(neighbor);
+            float dtheta = _min_velocity * (tan(steer * _steer_resolution) / _wheelbase);
+            Point neighbor((point.x - dx), (point.y - dy), (point.theta - dtheta));
 
             // Check for collision before adding to neighbors
             if (!checkCollision(neighbor))

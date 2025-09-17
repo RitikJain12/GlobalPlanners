@@ -16,4 +16,5 @@ private:
     bool _allow_reverse;
     float _min_velocity;
     float _wheelbase;
+    float _steer_resolution;
 };
