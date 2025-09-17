@@ -3,7 +3,7 @@
 class HybridAStar : public AStar
 {
 public:
-    HybridAStar(const float xy_resolution = 0.1f, const float theta_resolution = 8.0f);
+    HybridAStar(const float min_velocity = 0.3f, const float theta_resolution = 16.0f);
 
 private:
     // Helper function to get neighbors of a point

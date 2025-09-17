@@ -1,11 +1,11 @@
 #include "hybrid_a_star.h"
 
-HybridAStar::HybridAStar(const float xy_resolution, const float theta_resolution)
-    : AStar(xy_resolution, theta_resolution)
+HybridAStar::HybridAStar(const float min_velocity, const float theta_resolution)
+    : _min_velocity(min_velocity), AStar(min_velocity, theta_resolution)
 {
     _allow_reverse = false;
-    _min_velocity = 0.3;
-    _wheelbase = 3.0;
+    _wheelbase = 2.0;
+    _steer_resolution = M_PI / 8.0;
 }
 
 std::vector<Point> HybridAStar::getNeighbors(const Point &point)
@@ -61,5 +61,4 @@ float HybridAStar::calculateHeuristic(const Node &currentNode)
     float angle_diff = Point::slope(currentNode.point, _end_point) - currentNode.point.theta;
     Point::roundTheta(angle_diff);
     return dist + (angle_diff / _theta_least_count);
-    return Point::euclideanDistance(currentNode.point, _end_point);
 }
