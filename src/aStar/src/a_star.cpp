@@ -15,13 +15,8 @@ void AStar::roundPointsToResolution(Point &point)
     point.x = std::round(point.x / _xy_resolution) * _xy_resolution;
     point.y = std::round(point.y / _xy_resolution) * _xy_resolution;
 
-    while (point.theta < 0 || point.theta >= (2 * M_PI))
-    {
-        if (point.theta < 0)
-            point.theta += (2 * M_PI); // Normalize theta to be within [0, 2π]
-        else if (point.theta >= (2 * M_PI))
-            point.theta -= (2 * M_PI);
-    }
+    Point::roundTheta(point.theta);
+
     point.theta = std::round(point.theta / _theta_least_count) * _theta_least_count;
 }
 

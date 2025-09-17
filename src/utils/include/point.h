@@ -23,6 +23,12 @@ public:
     // Calculate the Euclidean distance between two points
     static float euclideanDistance(const Point &p1, const Point &p2);
 
+    // Round theta between 0 to 2pi
+    static void roundTheta(float &theta);
+
+    // calculate slope between 2 points
+    static float slope(const Point &p1, const Point &p2);
+
     // Equality operator for comparing two Point objects
     bool operator==(const Point &other) const;
 
