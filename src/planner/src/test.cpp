@@ -65,10 +65,11 @@ int main(int argc, char *argv[])
 
     nav_msgs::msg::OccupancyGrid map;
     map.header.frame_id = "map";
-    map.info.resolution = 1.0;
+    map.info.resolution = 0.1;
     map.info.width = 10;
     map.info.height = 10;
-    map.data.resize(map.info.width * map.info.height, 0); // Initialize with zeros
+    float size = (map.info.width * map.info.height) / (map.info.resolution * map.info.resolution);
+    map.data.resize((int)size, 0); // Initialize with zeros
 
     std::vector<Point> path_points;
 
@@ -87,7 +88,7 @@ int main(int argc, char *argv[])
     }
     else if (use_hybrid_astar)
     {
-        AStar *a_star = new HybridAStar(0.1f, 8.0f);
+        AStar *a_star = new HybridAStar(0.3f, (2 * M_PI * 10));
         a_star->setMap(map.data, map.info.width, map.info.height);
         a_star->setStartPoint(0.0f, 0.0f, 0.0f);
         a_star->setGoal(9.0f, 9.0f, 0.0f);
