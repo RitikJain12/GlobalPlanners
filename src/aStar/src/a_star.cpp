@@ -101,13 +101,11 @@ std::vector<Point> AStar::getNeighbors(const Point &point)
     for (float dtheta = 1; dtheta < _theta_resolution; dtheta += 1)
     {
         Point neighbor(point.x, point.y, (point.theta + (dtheta * _theta_least_count)));
-        roundPointsToResolution(neighbor);
         neighbors.push_back(neighbor);
     }
 
     // Add neighbors in the XY plane
     Point neighbor(Point(point.x + _xy_resolution * cos(point.theta), point.y + _xy_resolution * sin(point.theta), point.theta));
-    roundPointsToResolution(neighbor);
 
     // Check for collision before adding to neighbors
     if (!checkCollision(neighbor))
@@ -166,10 +164,13 @@ bool AStar::getPath(std::vector<Point> &path)
     openList.push(&_node_data[node_data_index]);
     node_data_index++;
 
+    // int count = 0;
     while (!openList.empty())
     {
         Node *currentNode = openList.top();
         openList.pop();
+
+        // std::cout << "Current Node - x: " << currentNode->point.x << " y : " << currentNode->point.y << " theta : " << currentNode->point.theta << std::endl;
 
         // Check if we reached the end node
         if (inTollerance(currentNode->point))
@@ -183,6 +184,7 @@ bool AStar::getPath(std::vector<Point> &path)
         std::vector<Point> neighbors = getNeighbors(currentNode->point);
         for (const Point &neighborPoint : neighbors)
         {
+            // std::cout << "Neighbour - x: " << neighborPoint.x << " y: " << neighborPoint.y << " theta: " << neighborPoint.theta << std::endl;
             Node *neighbor = getNodeAtPose(neighborPoint);
 
             if (neighbor == nullptr)
@@ -207,9 +209,14 @@ bool AStar::getPath(std::vector<Point> &path)
                 neighbor->f = temp_f;
                 neighbor->parent = currentNode;
 
+                // std::cout << "Cost g: " << temp_g << " h: " << temp_h << " f: " << temp_f << std::endl;
+
                 openList.push(neighbor);
             }
         }
+        // if (count > 30)
+        //     break;
+        // count++;
     }
 
     return false; // No path found
@@ -220,7 +227,7 @@ bool AStar::inTollerance(const Point &point)
     float dist = Point::euclideanDistance(point, _end_point);
     float theta_diff = abs(point.theta - _end_point.theta);
 
-    if (dist <= _xy_resolution && theta_diff <= _theta_least_count)
+    if (dist <= 0.5 && theta_diff <= 0.5)
     {
         return true;
     }
