@@ -1,6 +1,7 @@
 #pragma once
 
 #include <math.h>
+#include <algorithm>
 
 class Point
 {
@@ -28,6 +29,9 @@ public:
 
     // calculate slope between 2 points
     static float slope(const Point &p1, const Point &p2);
+
+    // calculate absolute diff between angle
+    static float absDiff(const Point &p1, const Point &p2);
 
     // Equality operator for comparing two Point objects
     bool operator==(const Point &other) const;
