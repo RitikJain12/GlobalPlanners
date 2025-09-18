@@ -26,6 +26,7 @@ Point::Point(const Point &other)
     x = other.x;
     y = other.y;
     theta = other.theta;
+    reverse = other.reverse;
 }
 
 bool Point::operator==(const Point &other) const
@@ -40,6 +41,7 @@ void Point::operator=(const Point &other)
     x = other.x;
     y = other.y;
     theta = other.theta;
+    reverse = other.reverse;
 }
 
 void Point::setThreshold(float newThreshold)

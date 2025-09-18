@@ -45,6 +45,7 @@ public:
     float x;
     float y;
     float theta;
+    bool reverse = false;
 
 private:
     static float _threshold;       // Threshold for floating-point comparison

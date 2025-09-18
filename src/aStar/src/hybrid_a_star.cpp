@@ -38,7 +38,7 @@ std::vector<Point> HybridAStar::getNeighbors(const Point &point)
         {
             float dtheta = _min_velocity * (tan(steer * _steer_resolution) / _wheelbase);
             Point neighbor((point.x - dx), (point.y - dy), (point.theta - dtheta));
-
+            neighbor.reverse = true;
             // Check for collision before adding to neighbors
             if (!checkCollision(neighbor))
                 neighbors.push_back(neighbor);
@@ -53,7 +53,12 @@ float HybridAStar::calculateTravelCost(const Node &currentNode, const Node &neig
     float distance = Point::euclideanDistance(currentNode.point, neighborNode.point);
     float angleDifference = Point::absDiff(currentNode.point.theta, neighborNode.point.theta);
     Point::roundTheta(angleDifference);
-    return distance + (angleDifference / _theta_least_count);
+    int reverse_penalty = 0;
+    if (neighborNode.point.reverse)
+    {
+        reverse_penalty = 10;
+    }
+    return distance + (angleDifference / _theta_least_count) + reverse_penalty;
 }
 
 float HybridAStar::calculateHeuristic(const Node &currentNode)
