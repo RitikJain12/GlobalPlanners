@@ -8,6 +8,7 @@ HybridAStar::HybridAStar(const float min_velocity, const float theta_resolution)
     _steer_resolution = (2 * M_PI) / 64.0; // 5.625 deg
     _max_steer = (3 * M_PI) / 16.0;        // 33.75 deg
     _steer_step = static_cast<int>(_max_steer / _steer_resolution);
+    _max_turnning_radius = _wheelbase / tan(_max_steer);
 }
 
 std::vector<Point> HybridAStar::getNeighbors(const Point &point)
@@ -64,8 +65,17 @@ float HybridAStar::calculateTravelCost(const Node &currentNode, const Node &neig
 float HybridAStar::calculateHeuristic(const Node &currentNode)
 {
     // Using Euclidean distance as heuristic
-    float dist = Point::euclideanDistance(currentNode.point, _end_point);
-    float angle_diff = Point::absDiff(Point::slope(currentNode.point, _end_point), currentNode.point.theta);
-    Point::roundTheta(angle_diff);
-    return dist + (angle_diff / _theta_least_count);
+    // float dist = Point::euclideanDistance(currentNode.point, _end_point);
+    // float angle_diff = Point::absDiff(Point::slope(currentNode.point, _end_point), currentNode.point.theta);
+    // Point::roundTheta(angle_diff);
+    // return dist + (angle_diff / _theta_least_count);
+
+    DubinsPath path;
+    double q0[3] = {currentNode.point.x, currentNode.point.y, currentNode.point.theta};
+    double q1[3] = {_end_point.x, _end_point.y, _end_point.theta};
+    if (dubins_shortest_path(&path, q0, q1, _max_turnning_radius) == 0)
+    {
+        return static_cast<float>(dubins_path_length(&path));
+    }
+    return MAXFLOAT;
 }

@@ -1,4 +1,8 @@
 #include "a_star.h"
+extern "C"
+{
+#include "dubins.h"
+}
 
 class HybridAStar : public AStar
 {
@@ -19,4 +23,5 @@ private:
     float _steer_resolution;
     float _max_steer;
     int _steer_step;
+    double _max_turnning_radius;
 };
