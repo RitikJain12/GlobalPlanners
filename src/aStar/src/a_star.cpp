@@ -44,13 +44,13 @@ void AStar::setGoal(float x, float y, float theta)
     roundPointsToResolution(_end_point);
 }
 
-void AStar::setMap(const std::vector<int8_t> &map, int width, int height)
+void AStar::setMap(const std::vector<int8_t> &map, int width, int height, float map_resolution)
 {
     _map = map;
-    _map_width = width;
-    _map_height = height;
-    _grid_width = width / _xy_resolution;   // Convert width to number of grid cells
-    _grid_height = height / _xy_resolution; // Convert height to number of grid cells
+    _grid_width = width;
+    _grid_height = height;
+    _map_width = width * map_resolution;   // Converting cells to meters
+    _map_height = height * map_resolution; // Converting cells to meters
 
     _node_data.reserve(_grid_width * _grid_height * _theta_resolution);             // Reserve space for nodes
     _node_position.resize(_grid_width * _grid_height * _theta_resolution, nullptr); // Initialize node pointers

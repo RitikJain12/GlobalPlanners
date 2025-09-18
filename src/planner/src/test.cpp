@@ -63,20 +63,21 @@ int main(int argc, char *argv[])
         use_astar = true;
     }
 
+    float map_width = 10;  // in meters
+    float map_height = 10; // in meters
     nav_msgs::msg::OccupancyGrid map;
     map.header.frame_id = "map";
     map.info.resolution = 0.1;
-    map.info.width = 10;
-    map.info.height = 10;
-    float size = (map.info.width * map.info.height) / (map.info.resolution * map.info.resolution);
-    map.data.resize((int)size, 0); // Initialize with zeros
+    map.info.width = map_width / map.info.resolution;       // in cells
+    map.info.height = map_height / map.info.resolution;     // in cells
+    map.data.resize((map.info.width * map.info.height), 0); // Initialize with zeros
 
     std::vector<Point> path_points;
 
     if (use_astar)
     {
         AStar a_star(map.info.resolution, 8.0f);
-        a_star.setMap(map.data, map.info.width, map.info.height);
+        a_star.setMap(map.data, map.info.width, map.info.height, map.info.resolution);
         a_star.setStartPoint(0.0f, 0.0f, 0.0f);
         a_star.setGoal(9.0f, 9.0f, 0.0f);
 
@@ -89,7 +90,7 @@ int main(int argc, char *argv[])
     else if (use_hybrid_astar)
     {
         AStar *a_star = new HybridAStar(0.3f, (2 * M_PI * 10));
-        a_star->setMap(map.data, map.info.width, map.info.height);
+        a_star->setMap(map.data, map.info.width, map.info.height, map.info.resolution);
         a_star->setStartPoint(0.0f, 0.0f, 0.0f);
         a_star->setGoal(9.0f, 9.0f, 0.0f);
 

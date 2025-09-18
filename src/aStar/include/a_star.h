@@ -32,7 +32,7 @@ public:
     void setGoal(float x, float y, float theta);
 
     // Method to set the map
-    void setMap(const std::vector<int8_t> &map, int width, int height);
+    void setMap(const std::vector<int8_t> &map, int width, int height, float map_resolution);
 
     // Method to get the path
     bool getPath(std::vector<Point> &path);
