@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
     if (use_astar)
     {
-        AStar a_star(map.info.resolution, 8.0f);
+        AStar a_star(8.0f);
         a_star.setMap(map.data, map.info.width, map.info.height, map.info.resolution);
         a_star.setStartPoint(0.0f, 0.0f, 0.0f);
         a_star.setGoal(9.0f, 9.0f, 0.0f);

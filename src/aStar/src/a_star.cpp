@@ -1,12 +1,11 @@
 #include "a_star.h"
 
-AStar::AStar(const float xy_resolution, const float theta_resolution)
+AStar::AStar(const float theta_resolution)
     : _start_point(Point()), _end_point(Point()),
-      _xy_resolution(xy_resolution), _theta_resolution(theta_resolution)
+      _theta_resolution(theta_resolution)
 {
     _theta_least_count = (2 * M_PI) / _theta_resolution; // Convert resolution to radians
 
-    Point::setThreshold(_xy_resolution / 2.0);          // Set XY threshold
     Point::setThetaThreshold(_theta_least_count / 2.0); // Set theta threshold
 }
 
@@ -51,6 +50,9 @@ void AStar::setMap(const std::vector<int8_t> &map, int width, int height, float 
     _grid_height = height;
     _map_width = width * map_resolution;   // Converting cells to meters
     _map_height = height * map_resolution; // Converting cells to meters
+
+    _xy_resolution = map_resolution;
+    Point::setThreshold(_xy_resolution / 2.0); // Set XY threshold
 
     _node_data.reserve(_grid_width * _grid_height * _theta_resolution);             // Reserve space for nodes
     _node_position.resize(_grid_width * _grid_height * _theta_resolution, nullptr); // Initialize node pointers
@@ -227,7 +229,7 @@ bool AStar::inTollerance(const Point &point)
     float dist = Point::euclideanDistance(point, _end_point);
     float theta_diff = abs(point.theta - _end_point.theta);
 
-    if (dist <= 0.5 && theta_diff <= 0.5)
+    if (dist <= _xy_tollerance && theta_diff <= _theta_tollerance)
     {
         return true;
     }

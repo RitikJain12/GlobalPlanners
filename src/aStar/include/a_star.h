@@ -14,10 +14,10 @@ class AStar
 {
 public:
     // Constructor
-    AStar(const float xy_resolution = 1.0f, const float theta_resolution = 8.0f);
+    AStar(const float theta_resolution = 8.0f);
 
     // Destructor
-    ~AStar() = default;
+    virtual ~AStar() = default;
 
     // Method to set the start point
     void setStartPoint(const Point &start);
@@ -50,6 +50,11 @@ private:
     // Check for tollerace
     bool inTollerance(const Point &point);
 
+    float _xy_tollerance;
+    float _theta_tollerance;
+    std::vector<Node> _node_data;       // List of nodes used in the algorithm
+    std::vector<Node *> _node_position; // Pointers to nodes for quick access
+
 protected:
     // Helper function to round points to the nearest resolution
     void roundPointsToResolution(Point &point);
@@ -79,15 +84,14 @@ protected:
     int _map_height;          // Height of map
     int _grid_width;          // Width of the grid map
     int _grid_height;         // Height of the grid map
-
-    std::vector<Node> _node_data;       // List of nodes used in the algorithm
-    std::vector<Node *> _node_position; // Pointers to nodes for quick access
 };
 
-struct CompareNode {
-    bool operator()(const Node* a, const Node* b) {
+struct CompareNode
+{
+    bool operator()(const Node *a, const Node *b)
+    {
         // For a min-priority queue, return true if 'a' has a GREATER value than 'b'
         // (so 'b' is considered "smaller" and will be at the top)
-        return a->f > b->f; 
+        return a->f > b->f;
     }
 };
