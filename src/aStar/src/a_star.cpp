@@ -226,7 +226,7 @@ bool AStar::getPath(std::vector<Point> &path)
 bool AStar::inTollerance(const Point &point)
 {
     float dist = Point::euclideanDistance(point, _end_point);
-    float theta_diff = abs(point.theta - _end_point.theta);
+    float theta_diff = Point::absDiff(point.theta, _end_point.theta);
 
     if (dist <= _xy_tollerance && theta_diff <= _theta_tollerance)
     {
