@@ -17,4 +17,6 @@ private:
     float _min_velocity;
     float _wheelbase;
     float _steer_resolution;
+    float _max_steer;
+    int _steer_step;
 };

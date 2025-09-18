@@ -5,7 +5,9 @@ HybridAStar::HybridAStar(const float min_velocity, const float theta_resolution)
 {
     _allow_reverse = false;
     _wheelbase = 2.0;
-    _steer_resolution = M_PI / 8.0;
+    _steer_resolution = (2 * M_PI) / 64.0; // 5.625 deg
+    _max_steer = (3 * M_PI) / 16.0;        // 33.75 deg
+    _steer_step = static_cast<int>(_max_steer / _steer_resolution);
 }
 
 std::vector<Point> HybridAStar::getNeighbors(const Point &point)
@@ -17,7 +19,7 @@ std::vector<Point> HybridAStar::getNeighbors(const Point &point)
     float dy = _min_velocity * sin(point.theta);
 
     // Add neighbors in forward direction
-    for (float steer = -2; steer <= 2; steer += 1)
+    for (float steer = -_steer_step; steer <= _steer_step; steer += 1)
     {
         float dtheta = _min_velocity * (tan(steer * _steer_resolution) / _wheelbase);
         float theta_dash = point.theta + dtheta;
@@ -32,7 +34,7 @@ std::vector<Point> HybridAStar::getNeighbors(const Point &point)
 
     if (_allow_reverse)
     {
-        for (float steer = -1; steer <= 1; steer += 1)
+        for (float steer = -_steer_step; steer <= _steer_step; steer += 1)
         {
             float dtheta = _min_velocity * (tan(steer * _steer_resolution) / _wheelbase);
             Point neighbor((point.x - dx), (point.y - dy), (point.theta - dtheta));
