@@ -60,7 +60,7 @@ protected:
     void roundPointsToResolution(Point &point);
 
     // Helper function to check for collisions
-    bool checkCollision(const Point &point);
+    bool checkCollision(Point point);
 
     // Helper function to calculate costs between two nodes
     virtual float calculateTravelCost(const Node &currentNode, const Node &neighborNode);

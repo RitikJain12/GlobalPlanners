@@ -68,9 +68,9 @@ int main(int argc, char *argv[])
     nav_msgs::msg::OccupancyGrid map;
     map.header.frame_id = "map";
     map.info.resolution = 0.1;
-    map.info.width = map_width / map.info.resolution;       // in cells
-    map.info.height = map_height / map.info.resolution;     // in cells
-    map.data.resize((map.info.width * map.info.height), 0); // Initialize with zeros
+    map.info.width = static_cast<int>(round(map_width / map.info.resolution));   // in cells
+    map.info.height = static_cast<int>(round(map_height / map.info.resolution)); // in cells
+    map.data.resize((map.info.width * map.info.height), 0);                      // Initialize with zeros
 
     std::vector<Point> path_points;
 
