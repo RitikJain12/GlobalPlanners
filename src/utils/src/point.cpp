@@ -14,6 +14,13 @@ Point::Point(float x, float y, float theta)
     this->theta = theta;
 }
 
+Point::Point(float x, float y)
+{
+    this->x = x;
+    this->y = y;
+    this->theta = 0.0f;
+}
+
 Point::Point(const Point &other)
 {
     x = other.x;

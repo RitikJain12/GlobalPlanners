@@ -12,6 +12,8 @@ public:
     // Parameterized constructor
     Point(float x, float y, float theta);
 
+    Point(float x, float y);
+
     // Copy constructor
     Point(const Point &other);
 

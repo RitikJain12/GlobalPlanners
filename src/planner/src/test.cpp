@@ -72,12 +72,14 @@ int main(int argc, char *argv[])
     map.info.height = static_cast<int>(round(map_height / map.info.resolution)); // in cells
     map.data.resize((map.info.width * map.info.height), 0);                      // Initialize with zeros
 
+    std::vector<Point> footprint = {Point(-0.5, 0.5), Point(-0.5, -0.5), Point(2.0, -0.5), Point(2.0, 0.5)};
     std::vector<Point> path_points;
 
     if (use_astar)
     {
         AStar a_star(8.0f);
         a_star.setMap(map.data, map.info.width, map.info.height, map.info.resolution);
+        a_star.setFootprint(footprint);
         a_star.setStartPoint(0.0f, 0.0f, 0.0f);
         a_star.setGoal(9.0f, 9.0f, 0.0f);
 
@@ -91,8 +93,9 @@ int main(int argc, char *argv[])
     {
         AStar *a_star = new HybridAStar(0.3f, (2 * M_PI * 10));
         a_star->setMap(map.data, map.info.width, map.info.height, map.info.resolution);
-        a_star->setStartPoint(0.0f, 0.0f, 0.0f);
-        a_star->setGoal(9.0f, 9.0f, 0.0f);
+        a_star->setFootprint(footprint);
+        a_star->setStartPoint(1.0f, 1.0f, 0.0f);
+        a_star->setGoal(8.0f, 8.0f, 0.0f);
 
         if (!a_star->getPath(path_points))
         {

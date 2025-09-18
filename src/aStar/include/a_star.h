@@ -34,6 +34,9 @@ public:
     // Method to set the map
     void setMap(const std::vector<int8_t> &map, int width, int height, float map_resolution);
 
+    // Method to set the footprint
+    void setFootprint(const std::vector<Point> footprint);
+
     // Method to get the path
     bool getPath(std::vector<Point> &path);
 
@@ -50,10 +53,16 @@ private:
     // Check for tollerace
     bool inTollerance(const Point &point);
 
+    // Transform footprint coordinates
+    std::vector<std::pair<int, int>> getFootprintCells(const Point &point);
+
+    void getLineCells(int x0, int x1, int y0, int y1, std::vector<std::pair<int, int>> &pts);
+
     float _xy_tollerance;
     float _theta_tollerance;
     std::vector<Node> _node_data;       // List of nodes used in the algorithm
     std::vector<Node *> _node_position; // Pointers to nodes for quick access
+    std::vector<Point> _footprint;
 
 protected:
     // Helper function to round points to the nearest resolution
