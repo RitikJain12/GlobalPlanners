@@ -1,7 +1,7 @@
 #include "hybrid_a_star.h"
 
-HybridAStar::HybridAStar(const float min_velocity, const float theta_resolution)
-    : AStar(theta_resolution), _min_velocity(min_velocity)
+HybridAStar::HybridAStar(std::shared_ptr<Map> map, const float min_velocity, const float theta_resolution)
+    : AStar(map, theta_resolution), _min_velocity(min_velocity)
 {
     _allow_reverse = false;
     _wheelbase = 2.0;

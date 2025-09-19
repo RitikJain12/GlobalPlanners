@@ -7,7 +7,7 @@ extern "C"
 class HybridAStar : public AStar
 {
 public:
-    HybridAStar(const float min_velocity = 0.3f, const float theta_resolution = 16.0f);
+    HybridAStar(std::shared_ptr<Map> map, const float min_velocity = 0.3f, const float theta_resolution = 16.0f);
 
 private:
     // Helper function to get neighbors of a point

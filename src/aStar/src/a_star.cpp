@@ -1,63 +1,55 @@
 #include "a_star.h"
 
-AStar::AStar(const float theta_resolution)
+AStar::AStar(std::shared_ptr<Map> map, const float theta_resolution)
     : _start_point(Point()), _end_point(Point()),
-      _theta_resolution(theta_resolution)
+      _theta_resolution(theta_resolution),
+      _map(map)
 {
     _xy_tollerance = 0.1;
     _theta_tollerance = 0.1;
 
     _theta_least_count = (2 * M_PI) / _theta_resolution; // Convert resolution to radians
     Point::setThetaThreshold(_theta_least_count / 2.0);  // Set theta threshold
+
+    int grid_width;
+    int grid_height;
+
+    _map->getMapDimentions(grid_width, grid_height, _xy_resolution);
+
+    _node_data.reserve((unsigned long int)grid_width * grid_height * ceil(_theta_resolution));             // Reserve space for nodes
+    _node_position.resize((unsigned long int)grid_width * grid_height * ceil(_theta_resolution), nullptr); // Initialize node pointers
+
+    Point::setThreshold(_xy_resolution / 2.0); // Set XY threshold
 }
 
-void AStar::roundPointsToResolution(Point &point)
-{
-    point.x = std::round(point.x / _xy_resolution) * _xy_resolution;
-    point.y = std::round(point.y / _xy_resolution) * _xy_resolution;
+// void AStar::roundPointsToResolution(Point &point)
+// {
+//     point.x = std::round(point.x / _xy_resolution) * _xy_resolution;
+//     point.y = std::round(point.y / _xy_resolution) * _xy_resolution;
 
-    Point::roundTheta(point.theta);
+//     Point::roundTheta(point.theta);
 
-    point.theta = std::round(point.theta / _theta_least_count) * _theta_least_count;
-}
+//     point.theta = std::round(point.theta / _theta_least_count) * _theta_least_count;
+// }
 
 void AStar::setStartPoint(const Point &start)
 {
     _start_point = Point(start);
-    roundPointsToResolution(_start_point);
 }
 
 void AStar::setStartPoint(float x, float y, float theta)
 {
     _start_point = Point(x, y, theta);
-    roundPointsToResolution(_start_point);
 }
 
 void AStar::setGoal(const Point &end)
 {
     _end_point = Point(end);
-    roundPointsToResolution(_end_point);
 }
 
 void AStar::setGoal(float x, float y, float theta)
 {
     _end_point = Point(x, y, theta);
-    roundPointsToResolution(_end_point);
-}
-
-void AStar::setMap(const std::vector<int8_t> &map, int width, int height, float map_resolution)
-{
-    _map = map;
-    _grid_width = width;
-    _grid_height = height;
-    _map_width = static_cast<int>(round(width * map_resolution));   // Converting cells to meters
-    _map_height = static_cast<int>(round(height * map_resolution)); // Converting cells to meters
-
-    _xy_resolution = map_resolution;
-    Point::setThreshold(_xy_resolution / 2.0); // Set XY threshold
-
-    _node_data.reserve((unsigned long int)_grid_width * _grid_height * ceil(_theta_resolution));             // Reserve space for nodes
-    _node_position.resize((unsigned long int)_grid_width * _grid_height * ceil(_theta_resolution), nullptr); // Initialize node pointers
 }
 
 void AStar::setFootprint(const std::vector<Point> footprint)
@@ -67,19 +59,17 @@ void AStar::setFootprint(const std::vector<Point> footprint)
 
 void AStar::setNodeAtPose(Point point, Node *node)
 {
-    roundPointsToResolution(point);
-    unsigned long int index = (static_cast<unsigned long int>(point.theta / _theta_least_count)) +
-                              (static_cast<unsigned long int>(point.x / _xy_resolution) * _theta_resolution) +
-                              (static_cast<unsigned long int>(point.y / _xy_resolution) * _grid_width * _theta_resolution);
+    // roundPointsToResolution(point);
+    int index_xy = _map->getIndex(point.x, point.y);
+    unsigned long int index = (point.theta / _theta_least_count) + (index_xy * _theta_resolution);
     _node_position[index] = node;
 }
 
 Node *AStar::getNodeAtPose(Point point)
 {
-    roundPointsToResolution(point);
-    unsigned long int index = (static_cast<unsigned long int>(point.theta / _theta_least_count)) +
-                              (static_cast<unsigned long int>(point.x / _xy_resolution) * _theta_resolution) +
-                              (static_cast<unsigned long int>(point.y / _xy_resolution) * _grid_width * _theta_resolution);
+    // roundPointsToResolution(point);
+    int index_xy = _map->getIndex(point.x, point.y);
+    unsigned long int index = (point.theta / _theta_least_count) + (index_xy * _theta_resolution);
     return _node_position[index];
 }
 
@@ -180,24 +170,17 @@ std::vector<std::pair<int, int>> AStar::getFootprintCells(const Point &point)
 
 bool AStar::checkCollision(Point point)
 {
-    roundPointsToResolution(point);
-    if (point.x < 0 || point.x >= _map_width || point.y < 0 || point.y >= _map_height)
+    int index_x, index_y;
+    _map->getWorldtoMap(index_x, index_y, point.x, point.y);
+    if (_map->getCost(index_x, index_y) != 0)
         return true;
 
-    std::vector<std::pair<int, int>> cells = getFootprintCells(point);
+    std::vector<std::pair<int, int>> fp_points = getFootprintCells(point);
 
-    for (const std::pair<int, int> &cell : cells)
+    for (const std::pair<int, int> &p : fp_points)
     {
-        int index_x = cell.first;
-        int index_y = cell.second;
-
-        // Check if the point is within the bounds of the map
-        if (index_x < 0 || index_x >= _grid_width || index_y < 0 || index_y >= _grid_height)
-            return true; // Out of bounds
-
-        // Check if the point collides with an obstacle in the map
-        int index = index_y * _grid_width + index_x;
-        if (_map[index] != 0)
+        _map->getWorldtoMap(index_x, index_y, p.first, p.second);
+        if (_map->getCost(index_x, index_y) != 0)
             return true;
     }
 
@@ -251,7 +234,7 @@ void AStar::backtrackPath(std::vector<Point> &path, Node *currentNode)
 
 bool AStar::getPath(std::vector<Point> &path)
 {
-    if (_map.empty() || _grid_width == 0 || _grid_height == 0)
+    if (_map == nullptr)
     {
         return false; // No map set
     }

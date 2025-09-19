@@ -6,15 +6,17 @@
 #include <queue>
 #include <unordered_set>
 #include <functional>
+#include <memory>
 #include <stdint.h>
 #include "point.h"
 #include "node.h"
+#include "map.h"
 
 class AStar
 {
 public:
     // Constructor
-    AStar(const float theta_resolution = 8.0f);
+    AStar(std::shared_ptr<Map> map, const float theta_resolution = 8.0f);
 
     // Destructor
     virtual ~AStar() = default;
@@ -30,9 +32,6 @@ public:
 
     // Method to set the end point with coordinates
     void setGoal(float x, float y, float theta);
-
-    // Method to set the map
-    void setMap(const std::vector<int8_t> &map, int width, int height, float map_resolution);
 
     // Method to set the footprint
     void setFootprint(const std::vector<Point> footprint);
@@ -63,10 +62,11 @@ private:
     std::vector<Node> _node_data;       // List of nodes used in the algorithm
     std::vector<Node *> _node_position; // Pointers to nodes for quick access
     std::vector<Point> _footprint;
+    std::shared_ptr<Map> _map;
 
 protected:
     // Helper function to round points to the nearest resolution
-    void roundPointsToResolution(Point &point);
+    // void roundPointsToResolution(Point &point);
 
     // Helper function to check for collisions
     bool checkCollision(Point point);
@@ -88,11 +88,11 @@ protected:
     float _theta_resolution;  // Resolution for theta
     float _theta_least_count; // Least count for theta resolution
 
-    std::vector<int8_t> _map; // Map representation
-    int _map_width;           // Width of map
-    int _map_height;          // Height of map
-    int _grid_width;          // Width of the grid map
-    int _grid_height;         // Height of the grid map
+    // std::vector<int8_t> _map; // Map representation
+    // int _map_width;           // Width of map
+    // int _map_height;          // Height of map
+    // int _grid_width;          // Width of the grid map
+    // int _grid_height;         // Height of the grid map
 };
 
 struct CompareNode

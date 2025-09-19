@@ -8,6 +8,7 @@
 #include "nav_msgs/msg/path.hpp"
 #include "a_star.h"
 #include "hybrid_a_star.h"
+#include "map.h"
 
 using namespace std::chrono_literals;
 
@@ -72,13 +73,15 @@ int main(int argc, char *argv[])
     map.info.height = static_cast<int>(round(map_height / map.info.resolution)); // in cells
     map.data.resize((map.info.width * map.info.height), 0);                      // Initialize with zeros
 
-    std::vector<Point> footprint = {Point(-0.5, 0.5), Point(-0.5, -0.5), Point(2.0, -0.5), Point(2.0, 0.5)};
+    std::shared_ptr<Map> map_ptr = std::make_shared<Map>(map_width, map_height, map.info.resolution);
+
+    std::vector<Point>
+        footprint = {Point(-0.5, 0.5), Point(-0.5, -0.5), Point(2.0, -0.5), Point(2.0, 0.5)};
     std::vector<Point> path_points;
 
     if (use_astar)
     {
-        AStar a_star(8.0f);
-        a_star.setMap(map.data, map.info.width, map.info.height, map.info.resolution);
+        AStar a_star(map_ptr, 8.0f);
         a_star.setFootprint(footprint);
         a_star.setStartPoint(0.0f, 0.0f, 0.0f);
         a_star.setGoal(9.0f, 9.0f, 0.0f);
@@ -91,11 +94,10 @@ int main(int argc, char *argv[])
     }
     else if (use_hybrid_astar)
     {
-        AStar *a_star = new HybridAStar(0.3f, (2 * M_PI * 10));
-        a_star->setMap(map.data, map.info.width, map.info.height, map.info.resolution);
+        AStar *a_star = new HybridAStar(map_ptr, 0.3f, (2 * M_PI * 10));
         a_star->setFootprint(footprint);
-        a_star->setStartPoint(1.0f, 1.0f, 0.0f);
-        a_star->setGoal(8.0f, 8.0f, 0.0f);
+        a_star->setStartPoint(1.0f, 1.0f, 1.57f);
+        a_star->setGoal(4.0f, 8.0f, 1.57f);
 
         if (!a_star->getPath(path_points))
         {
