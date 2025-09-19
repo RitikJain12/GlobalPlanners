@@ -17,6 +17,10 @@ private:
 
     float calculateHeuristic(const Node &currentNode) override;
 
+    float getDistanceHurestic(const Point &point);
+
+    float getObstacleHurestic(const Point &point);
+
     bool _allow_reverse;
     float _min_velocity;
     float _wheelbase;

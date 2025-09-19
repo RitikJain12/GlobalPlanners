@@ -70,12 +70,25 @@ float HybridAStar::calculateHeuristic(const Node &currentNode)
     // Point::roundTheta(angle_diff);
     // return dist + (angle_diff / _theta_least_count);
 
+    float dist_heuristic = getDistanceHurestic(currentNode.point);
+    float obs_heuristic = getObstacleHurestic(currentNode.point);
+    return std::max(dist_heuristic, obs_heuristic);
+}
+
+float HybridAStar::getDistanceHurestic(const Point &point)
+{
     DubinsPath path;
-    double q0[3] = {currentNode.point.x, currentNode.point.y, currentNode.point.theta};
+    double q0[3] = {point.x, point.y, point.theta};
     double q1[3] = {_end_point.x, _end_point.y, _end_point.theta};
     if (dubins_shortest_path(&path, q0, q1, _max_turnning_radius) == 0)
     {
         return static_cast<float>(dubins_path_length(&path));
     }
-    return MAXFLOAT;
+    return -1;
+}
+
+float HybridAStar::getObstacleHurestic(const Point &point)
+{
+    // ToDo
+    return 0;
 }
