@@ -45,6 +45,12 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # setup entrypoint
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+
+RUN groupadd --gid $GROUP_ID appusergroup && \
+    useradd --uid $USER_ID --gid $GROUP_ID -ms /bin/bash appuser
+    
 COPY ./ros_entrypoint.sh /
 
 RUN chmod +x /ros_entrypoint.sh 
