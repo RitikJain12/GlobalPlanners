@@ -12,28 +12,30 @@ public:
     // Parameterized constructor
     Point(float x, float y, float theta);
 
+    Point(float x, float y, float theta, float steer);
+    
     Point(float x, float y);
 
     // Copy constructor
     Point(const Point &other);
 
-    // Set a new threshold for floating-point comparison
-    static void setThreshold(float newThreshold);
-
-    // Set a new threshold for theta comparison
-    static void setThetaThreshold(float newThetaThreshold);
+    // Set least count for x, y & theta
+    static void setLeastCount(const float xy_least_count, const float theta_least_count);
 
     // Calculate the Euclidean distance between two points
     static float euclideanDistance(const Point &p1, const Point &p2);
 
     // Round theta between 0 to 2pi
-    static void roundTheta(float &theta);
+    static void normalizeTheta(float &theta);
 
     // calculate slope between 2 points
     static float slope(const Point &p1, const Point &p2);
 
     // calculate absolute diff between angle
-    static float absDiff(const float &p1, const float &p2);
+    static float absAngleDiff(const float &p1, const float &p2);
+
+    // Normalize point
+    static void normalizePoint(Point &point);
 
     // Equality operator for comparing two Point objects
     bool operator==(const Point &other) const;
@@ -45,9 +47,10 @@ public:
     float x;
     float y;
     float theta;
+    float steer;
     bool reverse = false;
 
 private:
-    static float _threshold;       // Threshold for floating-point comparison
-    static float _theta_threshold; // Threshold for theta comparison
+    static float _xy_least_count;    // Threshold for floating-point comparison
+    static float _theta_least_count; // Threshold for theta comparison
 };

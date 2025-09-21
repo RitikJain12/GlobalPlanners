@@ -9,7 +9,6 @@ AStar::AStar(std::shared_ptr<Map> map, const float theta_resolution)
     _theta_tollerance = 0.1;
 
     _theta_least_count = (2 * M_PI) / _theta_resolution; // Convert resolution to radians
-    Point::setThetaThreshold(_theta_least_count / 2.0);  // Set theta threshold
 
     int grid_width;
     int grid_height;
@@ -19,18 +18,8 @@ AStar::AStar(std::shared_ptr<Map> map, const float theta_resolution)
     _node_data.reserve((unsigned long int)grid_width * grid_height * ceil(_theta_resolution));             // Reserve space for nodes
     _node_position.resize((unsigned long int)grid_width * grid_height * ceil(_theta_resolution), nullptr); // Initialize node pointers
 
-    Point::setThreshold(_xy_resolution / 2.0); // Set XY threshold
+    Point::setLeastCount(_xy_resolution, _theta_least_count); // Set least count for Point class
 }
-
-// void AStar::roundPointsToResolution(Point &point)
-// {
-//     point.x = std::round(point.x / _xy_resolution) * _xy_resolution;
-//     point.y = std::round(point.y / _xy_resolution) * _xy_resolution;
-
-//     Point::roundTheta(point.theta);
-
-//     point.theta = std::round(point.theta / _theta_least_count) * _theta_least_count;
-// }
 
 void AStar::setStartPoint(const Point &start)
 {
@@ -171,7 +160,8 @@ std::vector<std::pair<int, int>> AStar::getFootprintCells(const Point &point)
 bool AStar::checkCollision(Point point)
 {
     int index_x, index_y;
-    _map->getWorldtoMap(index_x, index_y, point.x, point.y);
+    if (!_map->getWorldtoMap(index_x, index_y, point.x, point.y))
+        return true;
     if (_map->getCost(index_x, index_y) != 0)
         return true;
 
@@ -179,7 +169,8 @@ bool AStar::checkCollision(Point point)
 
     for (const std::pair<int, int> &p : fp_points)
     {
-        _map->getWorldtoMap(index_x, index_y, p.first, p.second);
+        index_x = p.first;
+        index_y = p.second;
         if (_map->getCost(index_x, index_y) != 0)
             return true;
     }
@@ -195,12 +186,16 @@ std::vector<Point> AStar::getNeighbors(const Point &point)
     // Add neighbors in the theta direction
     for (float dtheta = 1; dtheta < _theta_resolution; dtheta += 1)
     {
-        Point neighbor(point.x, point.y, (point.theta + (dtheta * _theta_least_count)));
+        float theta_dash = point.theta + (dtheta * _theta_least_count);
+        Point::normalizeTheta(theta_dash);
+        Point neighbor(point.x, point.y, theta_dash);
+        Point::normalizePoint(neighbor);
         neighbors.push_back(neighbor);
     }
 
     // Add neighbors in the XY plane
     Point neighbor(Point(point.x + _xy_resolution * cos(point.theta), point.y + _xy_resolution * sin(point.theta), point.theta));
+    Point::normalizePoint(neighbor);
 
     // Check for collision before adding to neighbors
     if (!checkCollision(neighbor))
@@ -212,8 +207,9 @@ std::vector<Point> AStar::getNeighbors(const Point &point)
 float AStar::calculateTravelCost(const Node &currentNode, const Node &neighborNode)
 {
     float distance = Point::euclideanDistance(currentNode.point, neighborNode.point);
-    float angleDifference = std::abs(currentNode.point.theta - neighborNode.point.theta) / _theta_least_count;
-    return distance + angleDifference;
+    float angleDifference = Point::absAngleDiff(currentNode.point.theta, neighborNode.point.theta);
+    Point::normalizeTheta(angleDifference);
+    return distance + (angleDifference / _theta_least_count);
 }
 
 float AStar::calculateHeuristic(const Node &currentNode)
@@ -237,6 +233,12 @@ bool AStar::getPath(std::vector<Point> &path)
     if (_map == nullptr)
     {
         return false; // No map set
+    }
+
+    if (checkCollision(_start_point) || checkCollision(_end_point))
+    {
+        std::cout << "Start or end point in collision" << std::endl;
+        return false; // Start or end point is in collision
     }
 
     if (_start_point == _end_point)
@@ -316,7 +318,7 @@ bool AStar::getPath(std::vector<Point> &path)
 bool AStar::inTollerance(const Point &point)
 {
     float dist = Point::euclideanDistance(point, _end_point);
-    float theta_diff = Point::absDiff(point.theta, _end_point.theta);
+    float theta_diff = Point::absAngleDiff(point.theta, _end_point.theta);
 
     if (dist <= _xy_tollerance && theta_diff <= _theta_tollerance)
     {

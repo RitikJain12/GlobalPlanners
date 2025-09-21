@@ -16,11 +16,11 @@ private:
 public:
     Map(const float &width, const float &height, const float &resolution);
 
-    void getMaptoWorld(const int &index_x, const int &index_y, float &world_x, float &world_y);
+    // bool getMaptoWorld(const int &index_x, const int &index_y, float &world_x, float &world_y);
 
-    void getWorldtoMap(int &index_x, int &index_y, const float &world_x, const float &world_y);
+    bool getWorldtoMap(int &index_x, int &index_y, const float &world_x, const float &world_y);
 
-    float getIndex(const float &world_x, const float &world_y);
+    int getIndex(const float &world_x, const float &world_y);
 
     int getCost(const int &index_x, const int &index_y);
 

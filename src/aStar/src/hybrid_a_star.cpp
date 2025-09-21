@@ -24,8 +24,8 @@ std::vector<Point> HybridAStar::getNeighbors(const Point &point)
     {
         float dtheta = _min_velocity * (tan(steer * _steer_resolution) / _wheelbase);
         float theta_dash = point.theta + dtheta;
-        Point::roundTheta(theta_dash);
-        Point neighbor((point.x + dx), (point.y + dy), theta_dash);
+        Point::normalizeTheta(theta_dash);
+        Point neighbor((point.x + dx), (point.y + dy), theta_dash, (steer * _steer_resolution));
         // roundPointsToResolution(neighbor);
 
         // Check for collision before adding to neighbors
@@ -38,7 +38,9 @@ std::vector<Point> HybridAStar::getNeighbors(const Point &point)
         for (float steer = -_steer_step; steer <= _steer_step; steer += 1)
         {
             float dtheta = _min_velocity * (tan(steer * _steer_resolution) / _wheelbase);
-            Point neighbor((point.x - dx), (point.y - dy), (point.theta - dtheta));
+            float theta_dash = point.theta - dtheta;
+            Point::normalizeTheta(theta_dash);
+            Point neighbor((point.x - dx), (point.y - dy), theta_dash, (steer * _steer_resolution));
             neighbor.reverse = true;
             // Check for collision before adding to neighbors
             if (!checkCollision(neighbor))
@@ -52,8 +54,8 @@ std::vector<Point> HybridAStar::getNeighbors(const Point &point)
 float HybridAStar::calculateTravelCost(const Node &currentNode, const Node &neighborNode)
 {
     float distance = Point::euclideanDistance(currentNode.point, neighborNode.point);
-    float angleDifference = Point::absDiff(currentNode.point.theta, neighborNode.point.theta);
-    Point::roundTheta(angleDifference);
+    float angleDifference = Point::absAngleDiff(currentNode.point.steer, neighborNode.point.steer);
+    Point::normalizeTheta(angleDifference);
     int reverse_penalty = 0;
     if (neighborNode.point.reverse)
     {
@@ -64,12 +66,6 @@ float HybridAStar::calculateTravelCost(const Node &currentNode, const Node &neig
 
 float HybridAStar::calculateHeuristic(const Node &currentNode)
 {
-    // Using Euclidean distance as heuristic
-    // float dist = Point::euclideanDistance(currentNode.point, _end_point);
-    // float angle_diff = Point::absDiff(Point::slope(currentNode.point, _end_point), currentNode.point.theta);
-    // Point::roundTheta(angle_diff);
-    // return dist + (angle_diff / _theta_least_count);
-
     float dist_heuristic = getDistanceHurestic(currentNode.point);
     float obs_heuristic = getObstacleHurestic(currentNode.point);
     return std::max(dist_heuristic, obs_heuristic);

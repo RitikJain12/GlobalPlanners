@@ -83,8 +83,8 @@ int main(int argc, char *argv[])
     {
         AStar a_star(map_ptr, 8.0f);
         a_star.setFootprint(footprint);
-        a_star.setStartPoint(0.0f, 0.0f, 0.0f);
-        a_star.setGoal(9.0f, 9.0f, 0.0f);
+        a_star.setStartPoint(1.0f, 1.0f, 0.0f);
+        a_star.setGoal(8.0f, 8.0f, 0.0f);
 
         if (!a_star.getPath(path_points))
         {
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
         AStar *a_star = new HybridAStar(map_ptr, 0.3f, (2 * M_PI * 10));
         a_star->setFootprint(footprint);
         a_star->setStartPoint(1.0f, 1.0f, 1.57f);
-        a_star->setGoal(4.0f, 8.0f, 1.57f);
+        a_star->setGoal(4.0f, 7.0f, 1.57f);
 
         if (!a_star->getPath(path_points))
         {
