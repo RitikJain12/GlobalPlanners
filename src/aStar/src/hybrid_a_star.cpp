@@ -26,7 +26,6 @@ std::vector<Point> HybridAStar::getNeighbors(const Point &point)
         float theta_dash = point.theta + dtheta;
         Point::normalizeTheta(theta_dash);
         Point neighbor((point.x + dx), (point.y + dy), theta_dash, (steer * _steer_resolution));
-        // roundPointsToResolution(neighbor);
 
         // Check for collision before adding to neighbors
         if (!checkCollision(neighbor))
@@ -42,6 +41,7 @@ std::vector<Point> HybridAStar::getNeighbors(const Point &point)
             Point::normalizeTheta(theta_dash);
             Point neighbor((point.x - dx), (point.y - dy), theta_dash, (steer * _steer_resolution));
             neighbor.reverse = true;
+
             // Check for collision before adding to neighbors
             if (!checkCollision(neighbor))
                 neighbors.push_back(neighbor);
