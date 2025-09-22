@@ -12,10 +12,12 @@ private:
     float _resolution;
     int _width_index;
     int _height_index;
-    std::vector<int> _map;
+    std::vector<int8_t> _map;
     std::vector<Point> _footprint;
 
     void getLineCells(int x0, int x1, int y0, int y1, std::vector<std::pair<int, int>> &pts);
+
+    void setCost(int index_x, int index_y, int cost);
 
 public:
     Map(const float &width, const float &height, const float &resolution);
@@ -29,7 +31,7 @@ public:
     // Method to set the footprint
     void setFootprint(const std::vector<Point> footprint);
 
-    inline std::vector<int> getMap() { return _map; }
+    inline std::vector<int8_t> getMap() { return _map; }
 
     inline void getMapDimentions(int &width, int &height, float &res)
     {
@@ -43,4 +45,7 @@ public:
 
     // Transform footprint coordinates
     std::vector<std::pair<float, float>> getFootprint(const Point &point);
+
+    // set obstacles
+    void setObstacles(std::vector<Point> polygon);
 };

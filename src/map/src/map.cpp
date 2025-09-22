@@ -42,6 +42,14 @@ void Map::setFootprint(const std::vector<Point> footprint)
     _footprint = footprint;
 }
 
+void Map::setCost(int index_x, int index_y, int cost)
+{
+    int index = index_x + (index_y * _width_index);
+
+    if (index < (_width_index * _height_index))
+        _map[index] = cost;
+}
+
 void Map::getLineCells(int x0, int x1, int y0, int y1, std::vector<std::pair<int, int>> &pts)
 {
     // Bresenham Ray-Tracing
@@ -127,7 +135,7 @@ std::vector<std::pair<int, int>> Map::getFootprintCells(const Point &point)
         int x1 = static_cast<int>((cos_theta * p1.x - sin_theta * p1.y + point.x) / _resolution);
         int y1 = static_cast<int>((sin_theta * p1.x + cos_theta * p1.y + point.y) / _resolution);
 
-        Point p2 = _footprint[(i + 1) % _footprint.size()];
+        Point p2 = _footprint[(i + 1) % n];
         int x2 = static_cast<int>((cos_theta * p2.x - sin_theta * p2.y + point.x) / _resolution);
         int y2 = static_cast<int>((sin_theta * p2.x + cos_theta * p2.y + point.y) / _resolution);
 
@@ -154,4 +162,28 @@ std::vector<std::pair<float, float>> Map::getFootprint(const Point &point)
     }
 
     return footprint;
+}
+
+void Map::setObstacles(std::vector<Point> polygon)
+{
+    std::vector<std::pair<int, int>> footprint_cells;
+
+    int n = polygon.size();
+    for (int i = 0; i < n; i++)
+    {
+        Point p1 = polygon[i];
+        int x1 = static_cast<int>(p1.x / _resolution);
+        int y1 = static_cast<int>(p1.y / _resolution);
+
+        Point p2 = polygon[(i + 1) % n];
+        int x2 = static_cast<int>(p2.x / _resolution);
+        int y2 = static_cast<int>(p2.y / _resolution);
+
+        getLineCells(x1, x2, y1, y2, footprint_cells);
+    }
+
+    for (const std::pair<int, int> &p : footprint_cells)
+    {
+        setCost(p.first, p.second, 254);
+    }
 }
