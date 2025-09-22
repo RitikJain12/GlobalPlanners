@@ -50,6 +50,7 @@ void Point::operator=(const Point &other)
     y = other.y;
     theta = other.theta;
     reverse = other.reverse;
+    steer = other.steer;
 }
 
 void Point::setLeastCount(const float xy_least_count, const float theta_least_count)

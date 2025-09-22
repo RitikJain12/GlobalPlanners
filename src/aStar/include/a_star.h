@@ -33,9 +33,6 @@ public:
     // Method to set the end point with coordinates
     void setGoal(float x, float y, float theta);
 
-    // Method to set the footprint
-    void setFootprint(const std::vector<Point> footprint);
-
     // Method to get the path
     bool getPath(std::vector<Point> &path);
 
@@ -52,16 +49,10 @@ private:
     // Check for tollerace
     bool inTollerance(const Point &point);
 
-    // Transform footprint coordinates
-    std::vector<std::pair<int, int>> getFootprintCells(const Point &point);
-
-    void getLineCells(int x0, int x1, int y0, int y1, std::vector<std::pair<int, int>> &pts);
-
     float _xy_tollerance;
     float _theta_tollerance;
     std::vector<Node> _node_data;       // List of nodes used in the algorithm
     std::vector<Node *> _node_position; // Pointers to nodes for quick access
-    std::vector<Point> _footprint;
     std::shared_ptr<Map> _map;
 
 protected:
@@ -88,11 +79,6 @@ protected:
     float _theta_resolution;  // Resolution for theta
     float _theta_least_count; // Least count for theta resolution
 
-    // std::vector<int8_t> _map; // Map representation
-    // int _map_width;           // Width of map
-    // int _map_height;          // Height of map
-    // int _grid_width;          // Width of the grid map
-    // int _grid_height;         // Height of the grid map
 };
 
 struct CompareNode

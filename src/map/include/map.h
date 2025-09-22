@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <vector>
+#include "point.h"
 
 class Map
 {
@@ -12,17 +13,21 @@ private:
     int _width_index;
     int _height_index;
     std::vector<int> _map;
+    std::vector<Point> _footprint;
+
+    void getLineCells(int x0, int x1, int y0, int y1, std::vector<std::pair<int, int>> &pts);
 
 public:
     Map(const float &width, const float &height, const float &resolution);
-
-    // bool getMaptoWorld(const int &index_x, const int &index_y, float &world_x, float &world_y);
 
     bool getWorldtoMap(int &index_x, int &index_y, const float &world_x, const float &world_y);
 
     int getIndex(const float &world_x, const float &world_y);
 
     int getCost(const int &index_x, const int &index_y);
+
+    // Method to set the footprint
+    void setFootprint(const std::vector<Point> footprint);
 
     inline std::vector<int> getMap() { return _map; }
 
@@ -32,4 +37,10 @@ public:
         height = _height_index;
         res = _resolution;
     }
+
+    // Transform footprint coordinates and return map cells
+    std::vector<std::pair<int, int>> getFootprintCells(const Point &point);
+
+    // Transform footprint coordinates
+    std::vector<std::pair<float, float>> getFootprint(const Point &point);
 };

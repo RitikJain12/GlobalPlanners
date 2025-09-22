@@ -6,6 +6,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "nav_msgs/msg/path.hpp"
+#include "geometry_msgs/msg/polygon_stamped.hpp"
+#include "geometry_msgs/msg/point32.hpp"
 #include "a_star.h"
 #include "hybrid_a_star.h"
 #include "map.h"
@@ -18,11 +20,12 @@ using namespace std::chrono_literals;
 class MinimalPublisher : public rclcpp::Node
 {
 public:
-    MinimalPublisher(nav_msgs::msg::OccupancyGrid map, nav_msgs::msg::Path path)
-        : Node("map_publisher"), map_(map), path_(path)
+    MinimalPublisher(nav_msgs::msg::OccupancyGrid map, nav_msgs::msg::Path path, geometry_msgs::msg::PolygonStamped footprint)
+        : Node("map_publisher"), map_(map), path_(path), footprint_(footprint)
     {
         map_publisher_ = this->create_publisher<nav_msgs::msg::OccupancyGrid>("/map", 10);
         path_publisher_ = this->create_publisher<nav_msgs::msg::Path>("/path", 10);
+        footprint_publisher_ = this->create_publisher<geometry_msgs::msg::PolygonStamped>("/footprint", 10);
         timer_ = this->create_wall_timer(
             500ms, std::bind(&MinimalPublisher::timer_callback, this));
     }
@@ -32,12 +35,16 @@ private:
     {
         map_publisher_->publish(map_);
         path_publisher_->publish(path_);
+        footprint_publisher_->publish(footprint_);
     }
+
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr map_publisher_;
     rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;
+    rclcpp::Publisher<geometry_msgs::msg::PolygonStamped>::SharedPtr footprint_publisher_;
     nav_msgs::msg::OccupancyGrid map_;
     nav_msgs::msg::Path path_;
+    geometry_msgs::msg::PolygonStamped footprint_;
 };
 
 int main(int argc, char *argv[])
@@ -77,13 +84,16 @@ int main(int argc, char *argv[])
 
     std::vector<Point>
         footprint = {Point(-0.5, 0.5), Point(-0.5, -0.5), Point(2.0, -0.5), Point(2.0, 0.5)};
+    map_ptr->setFootprint(footprint);
+
+    Point start;
     std::vector<Point> path_points;
 
     if (use_astar)
     {
+        start = Point(1.0, 1.0, 0.0);
         AStar a_star(map_ptr, 8.0f);
-        a_star.setFootprint(footprint);
-        a_star.setStartPoint(1.0f, 1.0f, 0.0f);
+        a_star.setStartPoint(start);
         a_star.setGoal(8.0f, 8.0f, 0.0f);
 
         if (!a_star.getPath(path_points))
@@ -94,9 +104,9 @@ int main(int argc, char *argv[])
     }
     else if (use_hybrid_astar)
     {
+        start = Point(1.0f, 1.0f, 1.57f);
         AStar *a_star = new HybridAStar(map_ptr, 0.3f, (2 * M_PI * 10));
-        a_star->setFootprint(footprint);
-        a_star->setStartPoint(1.0f, 1.0f, 1.57f);
+        a_star->setStartPoint(start);
         a_star->setGoal(4.0f, 7.0f, 1.57f);
 
         if (!a_star->getPath(path_points))
@@ -122,7 +132,18 @@ int main(int argc, char *argv[])
         path.poses.push_back(pose);
     }
 
-    rclcpp::spin(std::make_shared<MinimalPublisher>(map, path));
+    std::vector<std::pair<float, float>> fp = map_ptr->getFootprint(start);
+    geometry_msgs::msg::PolygonStamped ros_footprint;
+    for (const std::pair<float, float> &p : fp)
+    {
+        geometry_msgs::msg::Point32 fp_point;
+        fp_point.x = p.first;
+        fp_point.y = p.second;
+        ros_footprint.polygon.points.push_back(fp_point);
+    }
+    ros_footprint.header.frame_id = "map";
+
+    rclcpp::spin(std::make_shared<MinimalPublisher>(map, path, ros_footprint));
     rclcpp::shutdown();
     return 0;
 }
