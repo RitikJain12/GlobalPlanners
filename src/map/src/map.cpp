@@ -27,7 +27,7 @@ int Map::getIndex(const float &world_x, const float &world_y)
     return (index_x + (index_y * _width_index));
 }
 
-int Map::getCost(const int &index_x, const int &index_y)
+int8_t Map::getCost(const int &index_x, const int &index_y)
 {
     int index = index_x + (index_y * _width_index);
 

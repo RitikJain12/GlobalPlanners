@@ -3,7 +3,7 @@ project(map)
 
 add_subdirectory(../utils ${CMAKE_BINARY_DIR}/utils_build)
 
-add_library(${PROJECT_NAME} src/map.cpp)
+add_library(${PROJECT_NAME} src/map.cpp src/downsampled_map.cpp)
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include

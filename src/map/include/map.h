@@ -26,7 +26,7 @@ public:
 
     int getIndex(const float &world_x, const float &world_y);
 
-    int getCost(const int &index_x, const int &index_y);
+    int8_t getCost(const int &index_x, const int &index_y);
 
     // Method to set the footprint
     void setFootprint(const std::vector<Point> footprint);

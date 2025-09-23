@@ -1,4 +1,5 @@
 #include "a_star.h"
+#include "downsampled_map.h"
 extern "C"
 {
 #include "dubins.h"
