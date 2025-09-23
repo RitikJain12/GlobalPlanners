@@ -1,7 +1,7 @@
 #include "hybrid_a_star.h"
 
 HybridAStar::HybridAStar(std::shared_ptr<Map> map, const float min_velocity, const float theta_resolution)
-    : AStar(map, theta_resolution), _min_velocity(min_velocity)
+    : AStar(map, theta_resolution), _min_velocity(min_velocity), _downsampled_map(map, 2)
 {
     _allow_reverse = false;
     _wheelbase = 2.0;
@@ -85,6 +85,27 @@ float HybridAStar::getDistanceHurestic(const Point &point)
 
 float HybridAStar::getObstacleHurestic(const Point &point)
 {
-    // ToDo
+    
     return 0;
+}
+
+void HybridAStar::resetObstacleHurestic()
+{
+    int size = _downsampled_map.getSizeInX() * _downsampled_map.getSizeInY();
+    if (_obstacle_heuristic_map.size() == size)
+    {
+        std::fill(_obstacle_heuristic_map.begin(), _obstacle_heuristic_map.end(), 0.0);
+    }
+    else
+    {
+        std::fill(_obstacle_heuristic_map.begin(), _obstacle_heuristic_map.end(), 0.0);
+        _obstacle_heuristic_map.resize(size, 0.0);
+    }
+    _obstacle_heuristic_queue = std::priority_queue<std::pair<float, int>,
+                                                    std::vector<std::pair<float, int>>,
+                                                    std::greater<std::pair<float, int>>>();
+
+    int goal_index = floor(_end_point.x / 2.0) + (floor(_end_point.y / 2.0) * _downsampled_map.getSizeInX());
+    _obstacle_heuristic_queue.push(std::pair(Point::euclideanDistance(_end_point, _start_point), goal_index));
+    _obstacle_heuristic_map[goal_index] = -0.0001;
 }
