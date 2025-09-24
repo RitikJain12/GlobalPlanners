@@ -29,4 +29,6 @@ public:
     inline int getSizeInX() { return _downsampled_width_index; }
 
     inline int getSizeInY() { return _downsampled_height_index; }
+
+    int8_t getCost(int index);
 };

@@ -59,3 +59,13 @@ void DownsampledMap::setCost(int index_x, int index_y, int cost)
     if (index < (_downsampled_width_index * _downsampled_height_index))
         _downsampled_map[index] = cost;
 }
+
+int8_t DownsampledMap::getCost(int index)
+{
+    if (index < (_downsampled_width_index * _downsampled_height_index))
+    {
+        return _downsampled_map[index];
+    }
+
+    return 254;
+}

@@ -83,10 +83,121 @@ float HybridAStar::getDistanceHurestic(const Point &point)
     return -1;
 }
 
+float HybridAStar::DistanceHeuristic(int curr_index, int width, int goal_x, int goal_y)
+{
+    int dx = static_cast<int>(curr_index % width) - static_cast<int>(goal_x);
+    int dy = static_cast<int>(curr_index / width) - static_cast<int>(goal_y);
+    return std::sqrt(dx * dx + dy * dy);
+}
+
 float HybridAStar::getObstacleHurestic(const Point &point)
 {
-    
-    return 0;
+    int size_x = _downsampled_map.getSizeInX();
+    int start_x = floor(point.x / 2.0);
+    int start_y = floor(point.y / 2.0);
+    int start_index = start_x + (start_y * size_x);
+    float &requested_cost = _obstacle_heuristic_map[start_index];
+    if (requested_cost > 0.0)
+    {
+        return 2.0 * requested_cost;
+    }
+
+    for (std::pair<float, int> &q : _obstacle_heuristic_queue)
+    {
+        q.first = -_obstacle_heuristic_map[q.second] + DistanceHeuristic(q.second, size_x, start_x, start_y);
+    }
+
+    std::make_heap(
+        _obstacle_heuristic_queue.begin(), _obstacle_heuristic_queue.end(),
+        ObstacleHeuristicComparator{});
+
+    const int size_x_int = static_cast<int>(size_x);
+    const unsigned int size_y = _downsampled_map.getSizeInY();
+    const float sqrt_2 = sqrt(2);
+    float c_cost, cost, travel_cost, new_cost, existing_cost;
+    unsigned int idx, mx, my, mx_idx, my_idx;
+    unsigned int new_idx = 0;
+
+    const std::vector<int> neighborhood = {1, -1,                             // left right
+                                           size_x_int, -size_x_int,           // up down
+                                           size_x_int + 1, size_x_int - 1,    // upper diagonals
+                                           -size_x_int + 1, -size_x_int - 1}; // lower diagonals
+
+    while (!_obstacle_heuristic_queue.empty())
+    {
+        idx = _obstacle_heuristic_queue.front().second;
+        std::pop_heap(
+            _obstacle_heuristic_queue.begin(), _obstacle_heuristic_queue.end(),
+            ObstacleHeuristicComparator{});
+        _obstacle_heuristic_queue.pop_back();
+        c_cost = _obstacle_heuristic_map[idx];
+        if (c_cost > 0.0f)
+        {
+            // cell has been processed and closed, no further cost improvements
+            // are mathematically possible thanks to euclidean distance heuristic consistency
+            continue;
+        }
+        c_cost = -c_cost;
+        _obstacle_heuristic_map[idx] = c_cost; // set a positive value to close the cell
+
+        my_idx = idx / size_x;
+        mx_idx = idx - (my_idx * size_x);
+
+        // find neighbors
+        for (unsigned int i = 0; i != neighborhood.size(); i++)
+        {
+            new_idx = static_cast<unsigned int>(static_cast<int>(idx) + neighborhood[i]);
+
+            // if neighbor path is better and non-lethal, set new cost and add to queue
+            if (new_idx < size_x * size_y)
+            {
+                cost = static_cast<float>(_downsampled_map.getCost(new_idx));
+                if (cost != 0)
+                {
+                    continue;
+                }
+
+                my = new_idx / size_x;
+                mx = new_idx - (my * size_x);
+
+                if (mx == 0 && mx_idx >= size_x - 1 || mx >= size_x - 1 && mx_idx == 0)
+                {
+                    continue;
+                }
+                if (my == 0 && my_idx >= size_y - 1 || my >= size_y - 1 && my_idx == 0)
+                {
+                    continue;
+                }
+
+                existing_cost = _obstacle_heuristic_map[new_idx];
+                if (existing_cost <= 0.0f)
+                {
+                    travel_cost =
+                        ((i <= 3) ? 1.0f : sqrt_2) * (1.0f + (cost / 252.0f));
+                    new_cost = c_cost + travel_cost;
+                    if (existing_cost == 0.0f || -existing_cost > new_cost)
+                    {
+                        // the negative value means the cell is in the open set
+                        _obstacle_heuristic_map[new_idx] = -new_cost;
+                        _obstacle_heuristic_queue.emplace_back(
+                            new_cost + DistanceHeuristic(new_idx, size_x, start_x, start_y), new_idx);
+                        std::push_heap(
+                            _obstacle_heuristic_queue.begin(), _obstacle_heuristic_queue.end(),
+                            ObstacleHeuristicComparator{});
+                    }
+                }
+            }
+        }
+
+        if (idx == start_index)
+        {
+            break;
+        }
+    }
+
+    // return requested_node_cost which has been updated by the search
+    // costs are doubled due to downsampling
+    return 2.0 * requested_cost;
 }
 
 void HybridAStar::resetObstacleHurestic()
@@ -101,11 +212,10 @@ void HybridAStar::resetObstacleHurestic()
         std::fill(_obstacle_heuristic_map.begin(), _obstacle_heuristic_map.end(), 0.0);
         _obstacle_heuristic_map.resize(size, 0.0);
     }
-    _obstacle_heuristic_queue = std::priority_queue<std::pair<float, int>,
-                                                    std::vector<std::pair<float, int>>,
-                                                    std::greater<std::pair<float, int>>>();
+    _obstacle_heuristic_queue.clear();
+    _obstacle_heuristic_map.reserve(size);
 
     int goal_index = floor(_end_point.x / 2.0) + (floor(_end_point.y / 2.0) * _downsampled_map.getSizeInX());
-    _obstacle_heuristic_queue.push(std::pair(Point::euclideanDistance(_end_point, _start_point), goal_index));
+    _obstacle_heuristic_queue.emplace_back(std::pair(Point::euclideanDistance(_end_point, _start_point), goal_index));
     _obstacle_heuristic_map[goal_index] = -0.0001;
 }

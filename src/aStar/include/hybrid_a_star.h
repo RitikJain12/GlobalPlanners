@@ -24,6 +24,8 @@ private:
 
     float getObstacleHurestic(const Point &point);
 
+    float DistanceHeuristic(int curr_index, int width, int goal_x, int goal_y);
+
     bool _allow_reverse;
     float _min_velocity;
     float _wheelbase;
@@ -33,8 +35,13 @@ private:
     double _max_turnning_radius;
     DownsampledMap _downsampled_map;
     std::vector<float> _obstacle_heuristic_map;
-    std::priority_queue<std::pair<float, int>,
-                        std::vector<std::pair<float, int>>,
-                        std::greater<std::pair<float, int>>>
-        _obstacle_heuristic_queue;
+    std::vector<std::pair<float, int>> _obstacle_heuristic_queue;
+};
+
+struct ObstacleHeuristicComparator
+{
+    bool operator()(const std::pair<float, int> &a, const std::pair<float, int> &b) const
+    {
+        return a.first > b.first;
+    }
 };
