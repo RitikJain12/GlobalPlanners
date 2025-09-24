@@ -13,7 +13,9 @@ public:
     Point(float x, float y, float theta);
 
     Point(float x, float y, float theta, float steer);
-    
+
+    Point(float x, float y, float theta, float steer, float linear_vel);
+
     Point(float x, float y);
 
     // Copy constructor
@@ -49,6 +51,7 @@ public:
     float theta;
     float steer;
     bool reverse = false;
+    float linear_vel = 0.0;
 
 private:
     static float _xy_least_count;    // Threshold for floating-point comparison

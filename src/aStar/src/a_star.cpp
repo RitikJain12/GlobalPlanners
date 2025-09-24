@@ -2,21 +2,20 @@
 
 AStar::AStar(std::shared_ptr<Map> map, const float theta_resolution)
     : _start_point(Point()), _end_point(Point()),
-      _theta_resolution(theta_resolution),
+      _theta_resolution(ceil(theta_resolution)),
       _map(map)
 {
     _xy_tollerance = 0.1;
     _theta_tollerance = 0.1;
 
     _theta_least_count = (2 * M_PI) / _theta_resolution; // Convert resolution to radians
-
     int grid_width;
     int grid_height;
 
     _map->getMapDimentions(grid_width, grid_height, _xy_resolution);
 
-    _node_data.reserve((unsigned long int)grid_width * grid_height * ceil(_theta_resolution));             // Reserve space for nodes
-    _node_position.resize((unsigned long int)grid_width * grid_height * ceil(_theta_resolution), nullptr); // Initialize node pointers
+    _node_data.reserve((unsigned long int)grid_width * grid_height * _theta_resolution);             // Reserve space for nodes
+    _node_position.resize((unsigned long int)grid_width * grid_height * _theta_resolution, nullptr); // Initialize node pointers
 
     Point::setLeastCount(_xy_resolution, _theta_least_count); // Set least count for Point class
 }
@@ -45,7 +44,7 @@ void AStar::setNodeAtPose(Point point, Node *node)
 {
     // roundPointsToResolution(point);
     int index_xy = _map->getIndex(point.x, point.y);
-    unsigned long int index = (point.theta / _theta_least_count) + (index_xy * _theta_resolution);
+    unsigned long int index = static_cast<int>(point.theta / _theta_least_count) + (index_xy * _theta_resolution);
     _node_position[index] = node;
 }
 
@@ -53,7 +52,7 @@ Node *AStar::getNodeAtPose(Point point)
 {
     // roundPointsToResolution(point);
     int index_xy = _map->getIndex(point.x, point.y);
-    unsigned long int index = (point.theta / _theta_least_count) + (index_xy * _theta_resolution);
+    unsigned long int index = static_cast<int>(point.theta / _theta_least_count) + (index_xy * _theta_resolution);
     return _node_position[index];
 }
 

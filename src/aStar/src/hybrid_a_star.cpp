@@ -3,15 +3,19 @@
 HybridAStar::HybridAStar(std::shared_ptr<Map> map, const float min_velocity, const float theta_resolution)
     : AStar(map, theta_resolution), _min_velocity(min_velocity), _downsampled_map(map, 2)
 {
+    _use_dynamic = true;
     _allow_reverse = false;
     _wheelbase = 2.0;
+    _max_velocity = 0.7;
+    _min_linear_acc = 0.1;
     _steer_resolution = (2 * M_PI) / 64.0; // 5.625 deg
     _max_steer = (3 * M_PI) / 16.0;        // 33.75 deg
     _steer_step = static_cast<int>(_max_steer / _steer_resolution);
     _max_turnning_radius = _wheelbase / tan(_max_steer);
+    _max_reverse_vel = _allow_reverse ? -_max_velocity : 0.0;
 }
 
-std::vector<Point> HybridAStar::getNeighbors(const Point &point)
+std::vector<Point> HybridAStar::discretizeVel(const Point &point)
 {
     std::vector<Point> neighbors;
     // Generate neighbors based on the heading angle and resolution
@@ -49,6 +53,53 @@ std::vector<Point> HybridAStar::getNeighbors(const Point &point)
     }
 
     return neighbors;
+}
+
+std::vector<Point> HybridAStar::discretizeAcc(const Point &point)
+{
+    std::vector<Point> neighbors;
+    // Generate neighbors based on the heading angle and resolution
+
+    float vel[3];
+    vel[0] = point.linear_vel;
+    vel[1] = std::min((point.linear_vel + _min_linear_acc), _max_velocity);
+    vel[2] = std::max((point.linear_vel - _min_linear_acc), _max_reverse_vel);
+
+    for (const float &curr_vel : vel)
+    {
+        if (curr_vel == 0.0)
+            continue;
+
+        float dx = curr_vel * cos(point.theta);
+        float dy = curr_vel * sin(point.theta);
+
+        // Add neighbors in forward direction
+        for (float steer = -_steer_step; steer <= _steer_step; steer += 1)
+        {
+            float dtheta = curr_vel * (tan(steer * _steer_resolution) / _wheelbase);
+            float theta_dash = point.theta + dtheta;
+            Point::normalizeTheta(theta_dash);
+            Point neighbor((point.x + dx), (point.y + dy), theta_dash, (steer * _steer_resolution), curr_vel);
+
+            // Check for collision before adding to neighbors
+            if (!checkCollision(neighbor))
+                neighbors.push_back(neighbor);
+        }
+    }
+
+    return neighbors;
+}
+
+std::vector<Point> HybridAStar::getNeighbors(const Point &point)
+{
+    if (_use_dynamic)
+    {
+        return discretizeAcc(point);
+    }
+    else
+    {
+        return discretizeVel(point);
+    }
 }
 
 float HybridAStar::calculateTravelCost(const Node &currentNode, const Node &neighborNode)

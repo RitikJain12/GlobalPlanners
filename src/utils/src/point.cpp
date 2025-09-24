@@ -22,6 +22,17 @@ Point::Point(float x, float y, float theta, float steer)
     this->steer = steer;
 }
 
+Point::Point(float x, float y, float theta, float steer, float linear_vel)
+{
+    this->x = x;
+    this->y = y;
+    this->theta = theta;
+    this->steer = steer;
+    this->linear_vel = linear_vel;
+    if (linear_vel < 0.0)
+        this->reverse = true;
+}
+
 Point::Point(float x, float y)
 {
     this->x = x;
@@ -35,6 +46,7 @@ Point::Point(const Point &other)
     y = other.y;
     theta = other.theta;
     reverse = other.reverse;
+    linear_vel = other.linear_vel;
 }
 
 bool Point::operator==(const Point &other) const
@@ -51,6 +63,7 @@ void Point::operator=(const Point &other)
     theta = other.theta;
     reverse = other.reverse;
     steer = other.steer;
+    linear_vel = other.linear_vel;
 }
 
 void Point::setLeastCount(const float xy_least_count, const float theta_least_count)

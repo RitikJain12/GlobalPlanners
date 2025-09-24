@@ -16,6 +16,10 @@ private:
     // Helper function to get neighbors of a point
     std::vector<Point> getNeighbors(const Point &point) override;
 
+    std::vector<Point> discretizeVel(const Point &point);
+
+    std::vector<Point> discretizeAcc(const Point &point);
+
     float calculateTravelCost(const Node &currentNode, const Node &neighborNode) override;
 
     float calculateHeuristic(const Node &currentNode) override;
@@ -26,8 +30,12 @@ private:
 
     float DistanceHeuristic(int curr_index, int width, int goal_x, int goal_y);
 
+    bool _use_dynamic;
     bool _allow_reverse;
     float _min_velocity;
+    float _max_velocity;
+    float _max_reverse_vel;
+    float _min_linear_acc;
     float _wheelbase;
     float _steer_resolution;
     float _max_steer;
