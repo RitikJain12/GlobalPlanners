@@ -71,19 +71,32 @@ int main(int argc, char *argv[])
         use_astar = true;
     }
 
-    float map_width = 10;  // in meters
-    float map_height = 10; // in meters
+    float map_width = 20;  // in meters
+    float map_height = 20; // in meters
     nav_msgs::msg::OccupancyGrid map;
     map.header.frame_id = "map";
     map.info.resolution = 0.1;
-    map.info.width = static_cast<int>(round(map_width / map.info.resolution));   // in cells
-    map.info.height = static_cast<int>(round(map_height / map.info.resolution)); // in cells
-    map.data.resize((map.info.width * map.info.height), 0);                      // Initialize with zeros
+    map.info.width = static_cast<int>(ceil(map_width / map.info.resolution));   // in cells
+    map.info.height = static_cast<int>(ceil(map_height / map.info.resolution)); // in cells
 
     std::shared_ptr<Map> map_ptr = std::make_shared<Map>(map_width, map_height, map.info.resolution);
 
     std::vector<Point>
-        footprint = {Point(-0.5, 0.5), Point(-0.5, -0.5), Point(2.0, -0.5), Point(2.0, 0.5)};
+        left_wall = {Point(0.0, 0.0), Point(0.0, 16.5), Point(0.1, 16.5), Point(0.1, 0.0)};
+    map_ptr->setObstacles(left_wall);
+
+    std::vector<Point>
+        bottom_wall = {Point(0.0, 0.0), Point(2.6, 0.0), Point(2.6, 0.1), Point(0.0, 0.1)};
+    map_ptr->setObstacles(bottom_wall);
+
+    std::vector<Point>
+        right_wall = {Point(2.6, 0.0), Point(2.6, 16.5), Point(2.7, 16.5), Point(2.7, 0.0)};
+    map_ptr->setObstacles(right_wall);
+
+    map.data = map_ptr->getMap();
+
+    std::vector<Point>
+        footprint = {Point(-1.0, 0.5), Point(-1.0, -0.5), Point(2.0, -0.5), Point(2.0, 0.5)};
     map_ptr->setFootprint(footprint);
 
     Point start;
@@ -104,11 +117,11 @@ int main(int argc, char *argv[])
     }
     else if (use_hybrid_astar)
     {
-        start = Point(1.0f, 1.0f, 1.57f);
+        start = Point(0.9f, 1.5f, 1.57f);
         AStar *a_star = new HybridAStar(map_ptr, 0.3f, (2 * M_PI * 10));
         a_star->setStartPoint(start);
-        a_star->setGoal(4.0f, 7.0f, 1.57f);
-        static_cast<HybridAStar *> a_star->resetObstacleHurestic();
+        a_star->setGoal(9.9f, 5.0f, 0.0f);
+        static_cast<HybridAStar *>(a_star)->resetObstacleHurestic();
 
         if (!a_star->getPath(path_points))
         {

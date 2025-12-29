@@ -3,7 +3,7 @@
 HybridAStar::HybridAStar(std::shared_ptr<Map> map, const float min_velocity, const float theta_resolution)
     : AStar(map, theta_resolution), _min_velocity(min_velocity), _downsampled_map(map, 2)
 {
-    _use_dynamic = true;
+    _use_dynamic = false;
     _allow_reverse = false;
     _wheelbase = 2.0;
     _max_velocity = 0.7;
