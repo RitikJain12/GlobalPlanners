@@ -1,0 +1,12 @@
+hybrid_a_star:
+  ros__parameters:
+    theta_resolution: 8.0
+    xy_tolerance: 0.1
+    theta_tollerance: 0.1
+    use_dynamic: false
+    allow_reverse: false
+    wheelbase: 2.0
+    max_velocity: 0.7
+    min_linear_acc: 0.1
+    steer_resolution: 5.625
+    max_steer: 33.75

@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 
     bool use_astar = false;
     bool use_hybrid_astar = false;
-    std::string mode;
+    std::string mode = "astar";
 
     if (argc > 1)
     {
@@ -104,10 +104,10 @@ int main(int argc, char *argv[])
 
     if (use_astar)
     {
-        start = Point(1.0, 1.0, 0.0);
+        start = Point(1.0, 1.5, 1.5);
         AStar a_star(map_ptr, 8.0f);
         a_star.setStartPoint(start);
-        a_star.setGoal(8.0f, 8.0f, 0.0f);
+        a_star.setGoal(9.9f, 5.0f, 0.0f);
 
         if (!a_star.getPath(path_points))
         {

@@ -16,7 +16,10 @@ class AStar
 {
 public:
     // Constructor
-    AStar(std::shared_ptr<Map> map, const float theta_resolution = 8.0f);
+    AStar(std::shared_ptr<Map> map, const float theta_resolution = 8.0f,
+          const float xy_tollerance = 0.1f, const float theta_tollerance = 0.1f);
+
+    AStar() = default;
 
     // Destructor
     virtual ~AStar() = default;
@@ -78,7 +81,6 @@ protected:
     float _xy_resolution;     // Resolution for XY coordinates
     float _theta_resolution;  // Resolution for theta
     float _theta_least_count; // Least count for theta resolution
-
 };
 
 struct CompareNode

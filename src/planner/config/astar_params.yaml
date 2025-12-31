@@ -1,0 +1,5 @@
+astar_planner:
+  ros__parameters:
+    theta_resolution: 8.0
+    xy_tollerance: 0.1
+    theta_tollerance: 0.1

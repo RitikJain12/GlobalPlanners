@@ -1,13 +1,13 @@
 #include "a_star.h"
 
-AStar::AStar(std::shared_ptr<Map> map, const float theta_resolution)
+AStar::AStar(std::shared_ptr<Map> map, const float theta_resolution,
+             const float xy_tollerance, const float theta_tollerance)
     : _start_point(Point()), _end_point(Point()),
       _theta_resolution(ceil(theta_resolution)),
+      _xy_tollerance(xy_tollerance),
+      _theta_tollerance(theta_tollerance),
       _map(map)
 {
-    _xy_tollerance = 0.1;
-    _theta_tollerance = 0.1;
-
     _theta_least_count = (2 * M_PI) / _theta_resolution; // Convert resolution to radians
     int grid_width;
     int grid_height;
@@ -23,21 +23,25 @@ AStar::AStar(std::shared_ptr<Map> map, const float theta_resolution)
 void AStar::setStartPoint(const Point &start)
 {
     _start_point = Point(start);
+    Point::normalizePoint(_start_point);
 }
 
 void AStar::setStartPoint(float x, float y, float theta)
 {
     _start_point = Point(x, y, theta);
+    Point::normalizePoint(_start_point);
 }
 
 void AStar::setGoal(const Point &end)
 {
     _end_point = Point(end);
+    Point::normalizePoint(_end_point);
 }
 
 void AStar::setGoal(float x, float y, float theta)
 {
     _end_point = Point(x, y, theta);
+    Point::normalizePoint(_end_point);
 }
 
 void AStar::setNodeAtPose(Point point, Node *node)
