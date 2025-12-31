@@ -52,6 +52,9 @@ private:
     // Check for tollerace
     bool inTollerance(const Point &point);
 
+    // Reset previous runs data
+    void reset();
+
     float _xy_tollerance;
     float _theta_tollerance;
     std::vector<Node> _node_data;       // List of nodes used in the algorithm

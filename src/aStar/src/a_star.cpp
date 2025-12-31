@@ -150,6 +150,8 @@ bool AStar::getPath(std::vector<Point> &path)
         return true; // Start and end points are the same
     }
 
+    reset();
+
     std::priority_queue<Node *, std::vector<Node *>, CompareNode> openList;
 
     int node_data_index = 0;
@@ -216,6 +218,12 @@ bool AStar::getPath(std::vector<Point> &path)
     }
 
     return false; // No path found
+}
+
+void AStar::reset()
+{
+    _node_data.clear();
+    std::fill(_node_position.begin(), _node_position.end(), nullptr);
 }
 
 bool AStar::inTollerance(const Point &point)

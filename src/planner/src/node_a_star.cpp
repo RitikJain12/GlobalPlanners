@@ -119,11 +119,11 @@ private:
     void try_plan()
     {
         std::vector<Point> path_points;
+        path_ = nav_msgs::msg::Path();
 
         if (!a_star_->getPath(path_points))
         {
             RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "No path found");
-            path_ = nav_msgs::msg::Path();
             return;
         }
 
@@ -136,7 +136,7 @@ private:
             pose.pose.position.y = point.y;
             pose.pose.orientation.z = sin(point.theta / 2.0);
             pose.pose.orientation.w = cos(point.theta / 2.0);
-            std::cout << "Path point: (" << point.x << ", " << point.y << ", " << point.theta << ")" << std::endl;
+            // std::cout << "Path point: (" << point.x << ", " << point.y << ", " << point.theta << ")" << std::endl;
             path_.poses.push_back(pose);
         }
     }
