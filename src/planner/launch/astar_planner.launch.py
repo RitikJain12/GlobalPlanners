@@ -12,7 +12,7 @@ def generate_launch_description():
         Node(
             package='planner',
             executable='test_planner_a_star',
-            # name='astar_planner',
+            name='astar_planner',
             output='screen',
             parameters=[PathJoinSubstitution([
                 FindPackageShare('planner'), 'config', 'astar_params.yaml'])
