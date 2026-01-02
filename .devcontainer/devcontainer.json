@@ -10,8 +10,13 @@
     "privileged": true,
     "mounts": [
         "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind",
-        "source=${localEnv:HOME}/.Xauthority,target=/root/.Xauthority,type=bind"
+        "source=${localEnv:HOME}/.Xauthority,target=/root/.Xauthority,type=bind",
+        "source=${env:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind",
+        "source=${env:SSH_AUTH_SOCK},target=/ssh-agent,type=bind"
     ],
+    "remoteEnv": {
+        "SSH_AUTH_SOCK": "/ssh-agent"
+    },
     "containerEnv": {
         "DISPLAY": "${localEnv:DISPLAY}",
         "QT_X11_NO_MITSHM": "1"
