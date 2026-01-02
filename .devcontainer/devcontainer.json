@@ -8,6 +8,7 @@
     "workspaceFolder": "/ros2_ws",
     "workspaceMount": "source=${localWorkspaceFolder},target=/ros2_ws,type=bind",
     "privileged": true,
+    "remoteUser": "appuser",
     "mounts": [
         "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind",
         "source=${localEnv:HOME}/.Xauthority,target=/root/.Xauthority,type=bind",
