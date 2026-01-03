@@ -37,6 +37,7 @@ public:
         selection_ = false;
         activated_ = true;
     }
+
     void deactivate() override
     {
         activated_ = false;

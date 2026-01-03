@@ -8,6 +8,7 @@
 #include "nav_msgs/msg/path.hpp"
 #include "geometry_msgs/msg/polygon_stamped.hpp"
 #include "geometry_msgs/msg/point32.hpp"
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 
 #include "a_star.h"
 #include "map.h"
@@ -35,11 +36,21 @@ public:
             "/goal_pose", 1,
             std::bind(&PlannerAStar::goalCallback, this, std::placeholders::_1));
 
+        start_sub_ = this->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
+            "/initialpose", 1,
+            std::bind(&PlannerAStar::startCallback, this, std::placeholders::_1));
+
         timer_ = this->create_wall_timer(
             500ms, std::bind(&PlannerAStar::timer_callback, this));
     }
 
 private:
+    Point getPoint(const geometry_msgs::msg::Pose pose_msg)
+    {
+        return Point(pose_msg.position.x, pose_msg.position.y,
+                     2 * atan2(pose_msg.orientation.z, pose_msg.orientation.w));
+    }
+
     void initialize_env()
     {
         float map_width = 20;  // in meters
@@ -74,6 +85,7 @@ private:
     {
         std::vector<std::pair<float, float>> fp = map_ptr_->getFootprint(start);
 
+        footprint_.polygon.points.clear();
         for (const std::pair<float, float> &p : fp)
         {
             geometry_msgs::msg::Point32 fp_point;
@@ -143,9 +155,15 @@ private:
 
     void goalCallback(const geometry_msgs::msg::PoseStamped &msg)
     {
-        a_star_->setGoal(msg.pose.position.x, msg.pose.position.y,
-                         2 * atan2(msg.pose.orientation.z, msg.pose.orientation.w));
+        a_star_->setGoal(getPoint(msg.pose));
         try_plan();
+    }
+
+    void startCallback(const geometry_msgs::msg::PoseWithCovarianceStamped &msg)
+    {
+        Point start = Point(getPoint(msg.pose.pose));
+        a_star_->setStartPoint(start);
+        set_footprint(start);
     }
 
     void timer_callback()
@@ -160,6 +178,7 @@ private:
     rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;
     rclcpp::Publisher<geometry_msgs::msg::PolygonStamped>::SharedPtr footprint_publisher_;
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr goal_sub_;
+    rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr start_sub_;
 
     nav_msgs::msg::OccupancyGrid map_;
     nav_msgs::msg::Path path_;
