@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-humble-ros-core=0.10.0-1* \
     ros-dev-tools \
     ros-humble-rviz2 \
+    ros-humble-rviz-rendering \
     && rm -rf /var/lib/apt/lists/*
 
 # install x11 packages

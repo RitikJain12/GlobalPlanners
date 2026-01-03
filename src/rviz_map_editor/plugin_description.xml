@@ -1,0 +1,10 @@
+<library path="area_select_tool">
+    <class
+        name="rviz_map_editor/AreaSelectTool"
+        type="AreaSelectTool"
+        base_class_type="rviz_common::Tool">
+        <description>
+            Tool to select rectangular areas using mouse drag
+        </description>
+    </class>
+</library>
