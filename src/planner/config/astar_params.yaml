@@ -1,5 +1,11 @@
 astar_planner:
   ros__parameters:
-    theta_resolution: 8.0
-    xy_tollerance: 0.1
-    theta_tollerance: 0.1
+    planner:
+      theta_resolution: 8.0
+      xy_tollerance: 0.1
+      theta_tollerance: 0.1
+
+    map:
+      width: 20.0
+      height: 20.0
+      resolution: 0.1

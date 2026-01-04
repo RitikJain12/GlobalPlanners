@@ -24,9 +24,13 @@ public:
         path_publisher_ = this->create_publisher<nav_msgs::msg::Path>("/path", 10);
         footprint_publisher_ = this->create_publisher<geometry_msgs::msg::PolygonStamped>("/footprint", 10);
 
-        this->declare_parameter("theta_resolution", 8.0);
-        this->declare_parameter("xy_tollerance", 0.1);
-        this->declare_parameter("theta_tollerance", 0.1);
+        this->declare_parameter("planner.theta_resolution", 8.0);
+        this->declare_parameter("planner.xy_tollerance", 0.1);
+        this->declare_parameter("planner.theta_tollerance", 0.1);
+
+        this->declare_parameter("map.width", 20.0);
+        this->declare_parameter("map.height", 20.0);
+        this->declare_parameter("map.resolution", 0.1);
 
         initialize_env();
 
@@ -39,6 +43,10 @@ public:
         start_sub_ = this->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
             "/initialpose", 1,
             std::bind(&PlannerAStar::startCallback, this, std::placeholders::_1));
+
+        obstacle_sub_ = this->create_subscription<geometry_msgs::msg::PolygonStamped>(
+            "/add_polygon", 1,
+            std::bind(&PlannerAStar::obstacleCallback, this, std::placeholders::_1));
 
         timer_ = this->create_wall_timer(
             500ms, std::bind(&PlannerAStar::timer_callback, this));
@@ -53,27 +61,21 @@ private:
 
     void initialize_env()
     {
-        float map_width = 20;  // in meters
-        float map_height = 20; // in meters
+        float map_width;  // in meters
+        float map_height; // in meters
+        float resoluion;
+
+        this->get_parameter("map.width", map_width);
+        this->get_parameter("map.height", map_height);
+        this->get_parameter("map.resolution", resoluion);
+
         nav_msgs::msg::OccupancyGrid map;
         map_.header.frame_id = "map";
-        map_.info.resolution = 0.1;
+        map_.info.resolution = resoluion;
         map_.info.width = static_cast<int>(ceil(map_width / map_.info.resolution));   // in cells
         map_.info.height = static_cast<int>(ceil(map_height / map_.info.resolution)); // in cells
 
         map_ptr_ = std::make_shared<Map>(map_width, map_height, map_.info.resolution);
-
-        std::vector<Point>
-            left_wall = {Point(0.0, 0.0), Point(0.0, 16.5), Point(0.1, 16.5), Point(0.1, 0.0)};
-        map_ptr_->setObstacles(left_wall);
-
-        std::vector<Point>
-            bottom_wall = {Point(0.0, 0.0), Point(2.6, 0.0), Point(2.6, 0.1), Point(0.0, 0.1)};
-        map_ptr_->setObstacles(bottom_wall);
-
-        std::vector<Point>
-            right_wall = {Point(2.6, 0.0), Point(2.6, 16.5), Point(2.7, 16.5), Point(2.7, 0.0)};
-        map_ptr_->setObstacles(right_wall);
 
         map_.data = map_ptr_->getMap();
 
@@ -102,19 +104,19 @@ private:
         float xy_tollerance;
         float theta_tollerance;
 
-        if (!this->get_parameter("theta_resolution", theta_resolution))
+        if (!this->get_parameter("planner.theta_resolution", theta_resolution))
         {
             RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "Defaulting theta resolution to 8.0");
             theta_resolution = 8.0;
         }
 
-        if (!this->get_parameter("xy_tollerance", xy_tollerance))
+        if (!this->get_parameter("planner.xy_tollerance", xy_tollerance))
         {
             RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "Defaulting distance tollerance to 0.1");
             xy_tollerance = 0.1;
         }
 
-        if (!this->get_parameter("theta_tollerance", theta_tollerance))
+        if (!this->get_parameter("planner.theta_tollerance", theta_tollerance))
         {
             RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "Defaulting theta tollerance to 0.1");
             theta_tollerance = 0.1;
@@ -166,6 +168,17 @@ private:
         set_footprint(start);
     }
 
+    void obstacleCallback(const geometry_msgs::msg::PolygonStamped &msg)
+    {
+        std::vector<Point> obstacle;
+        for (geometry_msgs::msg::Point32 point : msg.polygon.points)
+        {
+            obstacle.push_back(Point(point.x, point.y));
+        }
+        map_ptr_->setObstacles(obstacle);
+        map_.data = map_ptr_->getMap();
+    }
+
     void timer_callback()
     {
         map_publisher_->publish(map_);
@@ -179,6 +192,7 @@ private:
     rclcpp::Publisher<geometry_msgs::msg::PolygonStamped>::SharedPtr footprint_publisher_;
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr goal_sub_;
     rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr start_sub_;
+    rclcpp::Subscription<geometry_msgs::msg::PolygonStamped>::SharedPtr obstacle_sub_;
 
     nav_msgs::msg::OccupancyGrid map_;
     nav_msgs::msg::Path path_;
