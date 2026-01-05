@@ -24,9 +24,19 @@ public:
         path_publisher_ = this->create_publisher<nav_msgs::msg::Path>("/path", 10);
         footprint_publisher_ = this->create_publisher<geometry_msgs::msg::PolygonStamped>("/footprint", 10);
 
+        this->declare_parameter("planner.type", "AStar");
+
         this->declare_parameter("planner.theta_resolution", 8.0);
         this->declare_parameter("planner.xy_tollerance", 0.1);
         this->declare_parameter("planner.theta_tollerance", 0.1);
+
+        this->declare_parameter("planner.use_dynamic", false);
+        this->declare_parameter("planner.allow_reverse", false);
+        this->declare_parameter("planner.wheelbase", 2.0);
+        this->declare_parameter("planner.max_velocity", 0.7);
+        this->declare_parameter("planner.min_linear_acc", 0.1);
+        this->declare_parameter("planner.steer_resolution", 5.625);
+        this->declare_parameter("planner.max_steer", 33.75);
 
         this->declare_parameter("map.width", 20.0);
         this->declare_parameter("map.height", 20.0);
@@ -50,6 +60,11 @@ public:
 
         timer_ = this->create_wall_timer(
             500ms, std::bind(&PlannerAStar::timer_callback, this));
+    }
+
+    ~PlannerAStar()
+    {
+        delete a_star_;
     }
 
 private:
@@ -122,7 +137,31 @@ private:
             theta_tollerance = 0.1;
         }
 
-        a_star_ = new AStar(map_ptr_, theta_resolution, xy_tollerance, theta_tollerance);
+        std::string planner_type;
+        this->get_parameter("planner.type", planner_type);
+
+        if (planner_type == "HybridAStar")
+        {
+            bool use_dynamic;
+            bool allow_reverse;
+            float wheelbase;
+            float max_velocity;
+            float min_linear_acc;
+            float steer_resolution;
+            float max_steer;
+
+            this->get_parameter("planner.use_dynamic", use_dynamic);
+            this->get_parameter("planner.allow_reverse", allow_reverse);
+            this->get_parameter("planner.wheelbase", wheelbase);
+            this->get_parameter("planner.max_velocity", max_velocity);
+            this->get_parameter("planner.min_linear_acc", min_linear_acc);
+            this->get_parameter("planner.steer_resolution", steer_resolution);
+            this->get_parameter("planner.max_steer", max_steer);
+        }
+        else
+        {
+            a_star_ = new AStar(map_ptr_, theta_resolution, xy_tollerance, theta_tollerance);
+        }
 
         Point start = Point(1.0, 1.5, 1.57);
         a_star_->setStartPoint(start);
