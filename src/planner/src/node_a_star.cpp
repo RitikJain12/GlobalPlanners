@@ -11,6 +11,7 @@
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 
 #include "a_star.h"
+#include "hybrid_a_star.h"
 #include "map.h"
 
 using namespace std::chrono_literals;
@@ -157,6 +158,8 @@ private:
             this->get_parameter("planner.min_linear_acc", min_linear_acc);
             this->get_parameter("planner.steer_resolution", steer_resolution);
             this->get_parameter("planner.max_steer", max_steer);
+
+            a_star_ = new HybridAStar(map_ptr_, 0.3f, (2 * M_PI * 10));
         }
         else
         {

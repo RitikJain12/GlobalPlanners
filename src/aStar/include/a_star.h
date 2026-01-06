@@ -52,9 +52,6 @@ private:
     // Check for tollerace
     bool inTollerance(const Point &point);
 
-    // Reset previous runs data
-    void reset();
-
     float _xy_tollerance;
     float _theta_tollerance;
     std::vector<Node> _node_data;       // List of nodes used in the algorithm
@@ -76,6 +73,9 @@ protected:
 
     // Helper function to get neighbors of a point
     virtual std::vector<Point> getNeighbors(const Point &point);
+
+    // Reset previous runs data
+    virtual void reset();
 
     // Member variables
     Point _start_point; // Starting point of the path

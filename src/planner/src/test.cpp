@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
         AStar *a_star = new HybridAStar(map_ptr, 0.3f, (2 * M_PI * 10));
         a_star->setStartPoint(start);
         a_star->setGoal(9.9f, 5.0f, 0.0f);
-        static_cast<HybridAStar *>(a_star)->resetObstacleHurestic();
+        // static_cast<HybridAStar *>(a_star)->resetObstacleHurestic();
 
         if (!a_star->getPath(path_points))
         {

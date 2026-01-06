@@ -10,9 +10,9 @@ class HybridAStar : public AStar
 public:
     HybridAStar(std::shared_ptr<Map> map, const float min_velocity = 0.3f, const float theta_resolution = 16.0f);
 
+private:
     void resetObstacleHurestic();
 
-private:
     // Helper function to get neighbors of a point
     std::vector<Point> getNeighbors(const Point &point) override;
 
@@ -29,6 +29,8 @@ private:
     float getObstacleHurestic(const Point &point);
 
     float DistanceHeuristic(int curr_index, int width, int goal_x, int goal_y);
+
+    void reset() override;
 
     bool _use_dynamic;
     bool _allow_reverse;

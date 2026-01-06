@@ -265,3 +265,9 @@ void HybridAStar::resetObstacleHurestic()
     _obstacle_heuristic_queue.emplace_back(std::pair(Point::euclideanDistance(_end_point, _start_point), goal_index));
     _obstacle_heuristic_map[goal_index] = -0.0001;
 }
+
+void HybridAStar::reset()
+{
+    AStar::reset();
+    resetObstacleHurestic();
+}
