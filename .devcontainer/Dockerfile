@@ -48,7 +48,8 @@ RUN apt-get update && apt-get install -y \
 # install git 
 RUN apt-get update && \
     apt-get install -y openssh-client \
-    git && \
+    git \
+    clang && \
     rm -rf /var/lib/apt/lists/*
 
 # setup entrypoint
