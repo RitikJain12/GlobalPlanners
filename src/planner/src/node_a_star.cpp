@@ -28,9 +28,10 @@ public:
         this->declare_parameter("planner.type", "AStar");
 
         this->declare_parameter("planner.theta_resolution", 8.0);
-        this->declare_parameter("planner.xy_tollerance", 0.1);
-        this->declare_parameter("planner.theta_tollerance", 0.1);
+        this->declare_parameter("planner.xy_tolerance", 0.1);
+        this->declare_parameter("planner.theta_tolerance", 0.1);
 
+        this->declare_parameter("planner.min_velocity", 0.3);
         this->declare_parameter("planner.use_dynamic", false);
         this->declare_parameter("planner.allow_reverse", false);
         this->declare_parameter("planner.wheelbase", 2.0);
@@ -117,8 +118,8 @@ private:
     void initialize_planner()
     {
         float theta_resolution;
-        float xy_tollerance;
-        float theta_tollerance;
+        float xy_tolerance;
+        float theta_tolerance;
 
         if (!this->get_parameter("planner.theta_resolution", theta_resolution))
         {
@@ -126,16 +127,16 @@ private:
             theta_resolution = 8.0;
         }
 
-        if (!this->get_parameter("planner.xy_tollerance", xy_tollerance))
+        if (!this->get_parameter("planner.xy_tolerance", xy_tolerance))
         {
-            RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "Defaulting distance tollerance to 0.1");
-            xy_tollerance = 0.1;
+            RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "Defaulting distance tolerance to 0.1");
+            xy_tolerance = 0.1;
         }
 
-        if (!this->get_parameter("planner.theta_tollerance", theta_tollerance))
+        if (!this->get_parameter("planner.theta_tolerance", theta_tolerance))
         {
-            RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "Defaulting theta tollerance to 0.1");
-            theta_tollerance = 0.1;
+            RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "Defaulting theta tolerance to 0.1");
+            theta_tolerance = 0.1;
         }
 
         std::string planner_type;
@@ -143,6 +144,7 @@ private:
 
         if (planner_type == "HybridAStar")
         {
+            float min_velocity;
             bool use_dynamic;
             bool allow_reverse;
             float wheelbase;
@@ -151,6 +153,7 @@ private:
             float steer_resolution;
             float max_steer;
 
+            this->get_parameter("planner.min_velocity", min_velocity);
             this->get_parameter("planner.use_dynamic", use_dynamic);
             this->get_parameter("planner.allow_reverse", allow_reverse);
             this->get_parameter("planner.wheelbase", wheelbase);
@@ -159,11 +162,13 @@ private:
             this->get_parameter("planner.steer_resolution", steer_resolution);
             this->get_parameter("planner.max_steer", max_steer);
 
-            a_star_ = new HybridAStar(map_ptr_, 0.3f, (2 * M_PI * 10));
+            a_star_ = new HybridAStar(map_ptr_, min_velocity, theta_resolution, xy_tolerance, theta_tolerance,
+                                      use_dynamic, allow_reverse, wheelbase, max_velocity,
+                                      min_linear_acc, steer_resolution, max_steer);
         }
         else
         {
-            a_star_ = new AStar(map_ptr_, theta_resolution, xy_tollerance, theta_tollerance);
+            a_star_ = new AStar(map_ptr_, theta_resolution, xy_tolerance, theta_tolerance);
         }
 
         Point start = Point(1.0, 1.5, 1.57);
@@ -174,6 +179,7 @@ private:
 
     void try_plan()
     {
+        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Planning path...");
         std::vector<Point> path_points;
         path_ = nav_msgs::msg::Path();
 
@@ -195,6 +201,7 @@ private:
             // std::cout << "Path point: (" << point.x << ", " << point.y << ", " << point.theta << ")" << std::endl;
             path_.poses.push_back(pose);
         }
+        RCLCPP(rclcpp::get_logger("rclcpp"), "Path found with %zu points", path_points.size());
     }
 
     void goalCallback(const geometry_msgs::msg::PoseStamped &msg)

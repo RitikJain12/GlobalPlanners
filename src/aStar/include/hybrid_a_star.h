@@ -8,7 +8,10 @@ extern "C"
 class HybridAStar : public AStar
 {
 public:
-    HybridAStar(std::shared_ptr<Map> map, const float min_velocity = 0.3f, const float theta_resolution = 16.0f);
+    HybridAStar(std::shared_ptr<Map> map, const float min_velocity = 0.3f, const float theta_resolution = 16.0f, const float xy_tolerance = 0.1f,
+                const float theta_tolerance = 0.1f, const bool use_dynamic = false, const bool allow_reverse = false,
+                const float wheelbase = 2.0f, const float max_velocity = 0.7f, const float min_linear_acc = 0.1f,
+                const float steer_resolution = 5.625f, const float max_steer = 33.75f);
 
 private:
     void resetObstacleHurestic();

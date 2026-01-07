@@ -1,12 +1,20 @@
-hybrid_a_star:
+astar_planner:
   ros__parameters:
-    theta_resolution: 8.0
-    xy_tolerance: 0.1
-    theta_tollerance: 0.1
-    use_dynamic: false
-    allow_reverse: false
-    wheelbase: 2.0
-    max_velocity: 0.7
-    min_linear_acc: 0.1
-    steer_resolution: 5.625
-    max_steer: 33.75
+    planner:
+      type: "HybridAStar"
+      theta_resolution: 62.8
+      xy_tolerance: 0.1
+      theta_tolerance: 0.1
+      min_velocity: 0.3
+      use_dynamic: false
+      allow_reverse: false
+      wheelbase: 2.0
+      max_velocity: 0.7
+      min_linear_acc: 0.1
+      steer_resolution: 5.625
+      max_steer: 33.75
+
+    map:
+      width: 20.0
+      height: 20.0
+      resolution: 0.1

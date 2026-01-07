@@ -1,9 +1,12 @@
 #include "hybrid_a_star.h"
 
-HybridAStar::HybridAStar(std::shared_ptr<Map> map, const float min_velocity, const float theta_resolution)
-    : AStar(map, theta_resolution), _min_velocity(min_velocity), _downsampled_map(map, 2), _use_dynamic(false),
-      _allow_reverse(false), _wheelbase(2.0), _max_velocity(0.7), _min_linear_acc(0.1), _steer_resolution(5.625),
-      _max_steer(33.75)
+HybridAStar::HybridAStar(std::shared_ptr<Map> map, const float min_velocity, const float theta_resolution, const float xy_tolerance,
+                         const float theta_tolerance, const bool use_dynamic, const bool allow_reverse,
+                         const float wheelbase, const float max_velocity, const float min_linear_acc,
+                         const float steer_resolution, const float max_steer)
+    : AStar(map, theta_resolution, xy_tolerance, theta_tolerance), _min_velocity(min_velocity), _downsampled_map(map, 2), _use_dynamic(use_dynamic),
+      _allow_reverse(allow_reverse), _wheelbase(wheelbase), _max_velocity(min_velocity), _min_linear_acc(min_linear_acc), _steer_resolution(steer_resolution),
+      _max_steer(max_steer)
 {
     _steer_step = static_cast<int>(_max_steer / _steer_resolution);
     _max_turnning_radius = _wheelbase / tan(_max_steer);
