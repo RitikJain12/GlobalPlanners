@@ -7,6 +7,7 @@
 #include <unordered_set>
 #include <functional>
 #include <memory>
+#include <chrono>
 #include <stdint.h>
 #include "point.h"
 #include "node.h"
@@ -17,7 +18,7 @@ class AStar
 public:
     // Constructor
     AStar(std::shared_ptr<Map> map, const float theta_resolution = 8.0f,
-          const float xy_tolerance = 0.1f, const float theta_tolerance = 0.1f);
+          const float xy_tolerance = 0.1f, const float theta_tolerance = 0.1f, const float timeout = 20.0f);
 
     AStar() = default;
 
@@ -57,6 +58,7 @@ private:
     std::vector<Node> _node_data;       // List of nodes used in the algorithm
     std::vector<Node *> _node_position; // Pointers to nodes for quick access
     std::shared_ptr<Map> _map;
+    float _timeout;
 
 protected:
     // Helper function to round points to the nearest resolution

@@ -1,12 +1,12 @@
 #include "a_star.h"
 
 AStar::AStar(std::shared_ptr<Map> map, const float theta_resolution,
-             const float xy_tolerance, const float theta_tolerance)
+             const float xy_tolerance, const float theta_tolerance, const float timeout)
     : _start_point(Point()), _end_point(Point()),
       _theta_resolution(ceil(theta_resolution)),
       _xy_tolerance(xy_tolerance),
       _theta_tolerance(theta_tolerance),
-      _map(map)
+      _map(map), _timeout(timeout)
 {
     _theta_least_count = (2 * M_PI) / _theta_resolution; // Convert resolution to radians
     int grid_width;
@@ -166,7 +166,8 @@ bool AStar::getPath(std::vector<Point> &path)
     openList.push(&_node_data[node_data_index]);
     node_data_index++;
 
-    while (!openList.empty())
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    while (!openList.empty() && std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - begin).count() < _timeout)
     {
         Node *currentNode = openList.top();
         openList.pop();

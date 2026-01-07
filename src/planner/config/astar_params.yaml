@@ -5,6 +5,7 @@ astar_planner:
       theta_resolution: 8.0
       xy_tolerance: 0.1
       theta_tolerance: 0.1
+      timeout: 20.0
 
     map:
       width: 20.0

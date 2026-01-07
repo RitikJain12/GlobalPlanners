@@ -30,6 +30,7 @@ public:
         this->declare_parameter("planner.theta_resolution", 8.0);
         this->declare_parameter("planner.xy_tolerance", 0.1);
         this->declare_parameter("planner.theta_tolerance", 0.1);
+        this->declare_parameter("planner.timeout", 20.0);
 
         this->declare_parameter("planner.min_velocity", 0.3);
         this->declare_parameter("planner.use_dynamic", false);
@@ -120,6 +121,7 @@ private:
         float theta_resolution;
         float xy_tolerance;
         float theta_tolerance;
+        float timeout;
 
         if (!this->get_parameter("planner.theta_resolution", theta_resolution))
         {
@@ -138,6 +140,7 @@ private:
             RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "Defaulting theta tolerance to 0.1");
             theta_tolerance = 0.1;
         }
+        this->get_parameter("planner.timeout", timeout);
 
         std::string planner_type;
         this->get_parameter("planner.type", planner_type);
@@ -162,13 +165,13 @@ private:
             this->get_parameter("planner.steer_resolution", steer_resolution);
             this->get_parameter("planner.max_steer", max_steer);
 
-            a_star_ = new HybridAStar(map_ptr_, min_velocity, theta_resolution, xy_tolerance, theta_tolerance,
+            a_star_ = new HybridAStar(map_ptr_, min_velocity, theta_resolution, xy_tolerance, theta_tolerance, timeout,
                                       use_dynamic, allow_reverse, wheelbase, max_velocity,
                                       min_linear_acc, steer_resolution, max_steer);
         }
         else
         {
-            a_star_ = new AStar(map_ptr_, theta_resolution, xy_tolerance, theta_tolerance);
+            a_star_ = new AStar(map_ptr_, theta_resolution, xy_tolerance, theta_tolerance, timeout);
         }
 
         Point start = Point(1.0, 1.5, 1.57);
@@ -179,9 +182,11 @@ private:
 
     void try_plan()
     {
+        rclcpp::Time start_time = this->now();
         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Planning path...");
         std::vector<Point> path_points;
         path_ = nav_msgs::msg::Path();
+        path_.header.frame_id = "map";
 
         if (!a_star_->getPath(path_points))
         {
@@ -189,7 +194,6 @@ private:
             return;
         }
 
-        path_.header.frame_id = "map";
         for (const auto &point : path_points)
         {
             geometry_msgs::msg::PoseStamped pose;
@@ -201,7 +205,8 @@ private:
             // std::cout << "Path point: (" << point.x << ", " << point.y << ", " << point.theta << ")" << std::endl;
             path_.poses.push_back(pose);
         }
-        RCLCPP(rclcpp::get_logger("rclcpp"), "Path found with %zu points", path_points.size());
+        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Path found with %zu points in %.3f seconds", path_points.size(),
+                    (this->now() - start_time).seconds());
     }
 
     void goalCallback(const geometry_msgs::msg::PoseStamped &msg)

@@ -1,10 +1,10 @@
 #include "hybrid_a_star.h"
 
 HybridAStar::HybridAStar(std::shared_ptr<Map> map, const float min_velocity, const float theta_resolution, const float xy_tolerance,
-                         const float theta_tolerance, const bool use_dynamic, const bool allow_reverse,
+                         const float theta_tolerance, const float timeout, const bool use_dynamic, const bool allow_reverse,
                          const float wheelbase, const float max_velocity, const float min_linear_acc,
                          const float steer_resolution, const float max_steer)
-    : AStar(map, theta_resolution, xy_tolerance, theta_tolerance), _min_velocity(min_velocity), _downsampled_map(map, 2), _use_dynamic(use_dynamic),
+    : AStar(map, theta_resolution, xy_tolerance, theta_tolerance, timeout), _min_velocity(min_velocity), _downsampled_map(map, 2), _use_dynamic(use_dynamic),
       _allow_reverse(allow_reverse), _wheelbase(wheelbase), _max_velocity(min_velocity), _min_linear_acc(min_linear_acc), _steer_resolution(steer_resolution),
       _max_steer(max_steer)
 {
