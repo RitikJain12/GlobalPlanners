@@ -1,11 +1,11 @@
 #include "a_star.h"
 
 AStar::AStar(std::shared_ptr<Map> map, const float theta_resolution,
-             const float xy_tollerance, const float theta_tollerance)
+             const float xy_tolerance, const float theta_tolerance)
     : _start_point(Point()), _end_point(Point()),
       _theta_resolution(ceil(theta_resolution)),
-      _xy_tollerance(xy_tollerance),
-      _theta_tollerance(theta_tollerance),
+      _xy_tolerance(xy_tolerance),
+      _theta_tolerance(theta_tolerance),
       _map(map)
 {
     _theta_least_count = (2 * M_PI) / _theta_resolution; // Convert resolution to radians
@@ -174,7 +174,7 @@ bool AStar::getPath(std::vector<Point> &path)
         // std::cout << "Current Node - x: " << currentNode->point.x << " y : " << currentNode->point.y << " theta : " << currentNode->point.theta << std::endl;
 
         // Check if we reached the end node
-        if (inTollerance(currentNode->point))
+        if (intolerance(currentNode->point))
         {
             // Reconstruct the path
             backtrackPath(path, currentNode);
@@ -226,12 +226,12 @@ void AStar::reset()
     std::fill(_node_position.begin(), _node_position.end(), nullptr);
 }
 
-bool AStar::inTollerance(const Point &point)
+bool AStar::intolerance(const Point &point)
 {
     float dist = Point::euclideanDistance(point, _end_point);
     float theta_diff = Point::absAngleDiff(point.theta, _end_point.theta);
 
-    if (dist <= _xy_tollerance && theta_diff <= _theta_tollerance)
+    if (dist <= _xy_tolerance && theta_diff <= _theta_tolerance)
     {
         return true;
     }

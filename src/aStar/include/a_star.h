@@ -17,7 +17,7 @@ class AStar
 public:
     // Constructor
     AStar(std::shared_ptr<Map> map, const float theta_resolution = 8.0f,
-          const float xy_tollerance = 0.1f, const float theta_tollerance = 0.1f);
+          const float xy_tolerance = 0.1f, const float theta_tolerance = 0.1f);
 
     AStar() = default;
 
@@ -50,10 +50,10 @@ private:
     Node *getNodeAtPose(Point point);
 
     // Check for tollerace
-    bool inTollerance(const Point &point);
+    bool intolerance(const Point &point);
 
-    float _xy_tollerance;
-    float _theta_tollerance;
+    float _xy_tolerance;
+    float _theta_tolerance;
     std::vector<Node> _node_data;       // List of nodes used in the algorithm
     std::vector<Node *> _node_position; // Pointers to nodes for quick access
     std::shared_ptr<Map> _map;
