@@ -2,10 +2,11 @@ astar_planner:
   ros__parameters:
     planner:
       type: "HybridAStar"
+      debug_visualization: true
       theta_resolution: 62.8
       xy_tolerance: 0.1
       theta_tolerance: 0.1
-      timeout: 20.0
+      timeout: 120.0
       min_velocity: 0.3
       use_dynamic: false
       allow_reverse: false

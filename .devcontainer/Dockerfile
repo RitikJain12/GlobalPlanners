@@ -57,7 +57,11 @@ ARG USER_ID=1000
 ARG GROUP_ID=1000
 
 RUN groupadd --gid $GROUP_ID appusergroup && \
-    useradd --uid $USER_ID --gid $GROUP_ID -ms /bin/bash appuser
+    useradd --uid $USER_ID --gid $GROUP_ID -ms /bin/bash appuser \
+    && apt-get update \
+    && apt-get install -y sudo \
+    && echo "appuser ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/appuser \
+    && chmod 0440 /etc/sudoers.d/appuser
 
 COPY ./ros_entrypoint.sh /
 

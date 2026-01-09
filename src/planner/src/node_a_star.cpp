@@ -12,6 +12,7 @@
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
 using namespace std::chrono_literals;
 
@@ -25,7 +26,12 @@ class PlannerAStar : public rclcpp::Node {
         this->create_publisher<geometry_msgs::msg::PolygonStamped>("/footprint",
                                                                    10);
 
+    viz_publisher_ =
+        this->create_publisher<visualization_msgs::msg::MarkerArray>(
+            "/planner_visualization", 10);
+
     this->declare_parameter("planner.type", "AStar");
+    this->declare_parameter("planner.debug_visualization", false);
 
     this->declare_parameter("planner.theta_resolution", 8.0);
     this->declare_parameter("planner.xy_tolerance", 0.1);
@@ -66,6 +72,12 @@ class PlannerAStar : public rclcpp::Node {
 
     timer_ = this->create_wall_timer(
         500ms, std::bind(&PlannerAStar::timer_callback, this));
+
+    this->get_parameter("planner.debug_visualization", debug_visualization_);
+    if (debug_visualization_) {
+      a_star_->setVisualizationCallback(
+          std::bind(&PlannerAStar::visvualizer, this, std::placeholders::_1));
+    }
   }
 
   ~PlannerAStar() { delete a_star_; }
@@ -179,6 +191,7 @@ class PlannerAStar : public rclcpp::Node {
   }
 
   void try_plan() {
+    viz_markers_ = visualization_msgs::msg::MarkerArray();
     rclcpp::Time start_time = this->now();
     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Planning path...");
     std::vector<Point> path_points;
@@ -232,11 +245,83 @@ class PlannerAStar : public rclcpp::Node {
     footprint_publisher_->publish(footprint_);
   }
 
+  void visvualizer(const AStar::VisvualizationData& data) {
+    if (viz_markers_.markers.empty()) {
+      visualization_msgs::msg::Marker open_set_marker;
+      open_set_marker.header.frame_id = "map";
+      open_set_marker.ns = "open_set";
+      open_set_marker.id = 0;
+      open_set_marker.type = visualization_msgs::msg::Marker::POINTS;
+      open_set_marker.action = visualization_msgs::msg::Marker::ADD;
+      open_set_marker.scale.x = 0.1;
+      open_set_marker.scale.y = 0.1;
+      open_set_marker.color.a = 1.0;
+      open_set_marker.color.r = 0.0;
+      open_set_marker.color.g = 1.0;
+      open_set_marker.color.b = 0.0;
+
+      visualization_msgs::msg::Marker closed_set_marker;
+      closed_set_marker.header.frame_id = "map";
+      closed_set_marker.ns = "closed_set";
+      closed_set_marker.id = 1;
+      closed_set_marker.type = visualization_msgs::msg::Marker::POINTS;
+      closed_set_marker.action = visualization_msgs::msg::Marker::ADD;
+      closed_set_marker.scale.x = 0.1;
+      closed_set_marker.scale.y = 0.1;
+      closed_set_marker.color.a = 1.0;
+      closed_set_marker.color.r = 1.0;
+      closed_set_marker.color.g = 0.0;
+      closed_set_marker.color.b = 0.0;
+
+      visualization_msgs::msg::Marker current_marker;
+      current_marker.header.frame_id = "map";
+      current_marker.ns = "current_node";
+      current_marker.id = 2;
+      current_marker.type = visualization_msgs::msg::Marker::ARROW;
+      current_marker.action = visualization_msgs::msg::Marker::ADD;
+      current_marker.scale.x = 0.2;
+      current_marker.scale.y = 0.2;
+      current_marker.scale.z = 0.1;
+      current_marker.color.a = 1.0;
+      current_marker.color.r = 0.0;
+      current_marker.color.g = 0.0;
+      current_marker.color.b = 1.0;
+
+      viz_markers_.markers.push_back(open_set_marker);
+      viz_markers_.markers.push_back(closed_set_marker);
+      viz_markers_.markers.push_back(current_marker);
+    }
+
+    for (const Point& p : data.neighbors) {
+      geometry_msgs::msg::Point point;
+      point.x = p.x;
+      point.y = p.y;
+      point.z = 0.0;
+      viz_markers_.markers[0].points.push_back(point);
+    }
+
+    geometry_msgs::msg::Point point;
+    point.x = data.current.x;
+    point.y = data.current.y;
+    point.z = 0.0;
+    viz_markers_.markers[1].points.push_back(point);
+
+    viz_markers_.markers[2].pose.position.x = data.current.x;
+    viz_markers_.markers[2].pose.position.y = data.current.y;
+    viz_markers_.markers[2].pose.position.z = 0.0;
+    viz_markers_.markers[2].pose.orientation.z = sin(data.current.theta / 2.0);
+    viz_markers_.markers[2].pose.orientation.w = cos(data.current.theta / 2.0);
+
+    viz_publisher_->publish(viz_markers_);
+  }
+
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr map_publisher_;
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;
   rclcpp::Publisher<geometry_msgs::msg::PolygonStamped>::SharedPtr
       footprint_publisher_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr
+      viz_publisher_;
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr goal_sub_;
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
       start_sub_;
@@ -246,9 +331,12 @@ class PlannerAStar : public rclcpp::Node {
   nav_msgs::msg::OccupancyGrid map_;
   nav_msgs::msg::Path path_;
   geometry_msgs::msg::PolygonStamped footprint_;
+  visualization_msgs::msg::MarkerArray viz_markers_;
 
   std::shared_ptr<Map> map_ptr_;
   AStar* a_star_;
+
+  bool debug_visualization_;
 };
 
 int main(int argc, char* argv[]) {

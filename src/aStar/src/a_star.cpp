@@ -166,6 +166,11 @@ bool AStar::getPath(std::vector<Point>& path) {
                                       .count() < _timeout) {
     Node* currentNode = openList.top();
     openList.pop();
+    _visualization_data.current = currentNode->point;
+
+    if (_visualization_callback) {
+      _visualization_callback(_visualization_data);
+    }
 
     // std::cout << "Current Node - x: " << currentNode->point.x << " y : " <<
     // currentNode->point.y << " theta : " << currentNode->point.theta <<
@@ -180,6 +185,7 @@ bool AStar::getPath(std::vector<Point>& path) {
 
     // Get neighbors of the current node
     std::vector<Point> neighbors = getNeighbors(currentNode->point);
+    _visualization_data.neighbors.clear();
     for (const Point& neighborPoint : neighbors) {
       // std::cout << "Neighbour - x: " << neighborPoint.x << " y: " <<
       // neighborPoint.y << " theta: " << neighborPoint.theta << std::endl;
@@ -210,6 +216,7 @@ bool AStar::getPath(std::vector<Point>& path) {
         // temp_f << std::endl;
 
         openList.push(neighbor);
+        _visualization_data.neighbors.push_back(neighbor->point);
       }
     }
   }
@@ -218,6 +225,7 @@ bool AStar::getPath(std::vector<Point>& path) {
 }
 
 void AStar::reset() {
+  _visualization_data = VisvualizationData();
   _node_data.clear();
   std::fill(_node_position.begin(), _node_position.end(), nullptr);
 }

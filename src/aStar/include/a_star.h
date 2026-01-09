@@ -42,6 +42,19 @@ class AStar {
   // Method to get the path
   bool getPath(std::vector<Point>& path);
 
+  // Struct for visualization data
+  struct VisvualizationData {
+    std::vector<Point> neighbors;
+    Point current;
+  };
+
+  using VisvualizationFunction = std::function<void(const VisvualizationData&)>;
+
+  inline void setVisualizationCallback(
+      VisvualizationFunction visualization_callback) {
+    _visualization_callback = std::move(visualization_callback);
+  }
+
  private:
   // Helper function to backtrack the path from the end node to the start node
   void backtrackPath(std::vector<Point>& path, Node* endNode);
@@ -61,6 +74,9 @@ class AStar {
   std::vector<Node*> _node_position;  // Pointers to nodes for quick access
   std::shared_ptr<Map> _map;
   float _timeout;
+
+  VisvualizationData _visualization_data;
+  VisvualizationFunction _visualization_callback;
 
  protected:
   // Helper function to round points to the nearest resolution

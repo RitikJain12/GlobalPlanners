@@ -108,9 +108,10 @@ float HybridAStar::calculateTravelCost(const Node& currentNode,
   Point::normalizeTheta(angleDifference);
   int reverse_penalty = 0;
   if (neighborNode.point.reverse) {
-    reverse_penalty = 10;
+    reverse_penalty = _reverse_penalty;
   }
-  return distance + (angleDifference / _theta_least_count) + reverse_penalty;
+  return distance + (_turn_penalty * (angleDifference / _theta_least_count)) +
+         reverse_penalty;
 }
 
 float HybridAStar::calculateHeuristic(const Node& currentNode) {
