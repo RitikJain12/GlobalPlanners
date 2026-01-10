@@ -117,7 +117,10 @@ float HybridAStar::calculateTravelCost(const Node& currentNode,
 float HybridAStar::calculateHeuristic(const Node& currentNode) {
   float dist_heuristic = getDistanceHurestic(currentNode.point);
   float obs_heuristic = getObstacleHurestic(currentNode.point);
+  std::cout << "Distance Heuristic: " << dist_heuristic
+            << " Obstacle Heuristic: " << obs_heuristic << std::endl;
   return std::max(dist_heuristic, obs_heuristic);
+  // return dist_heuristic;
 }
 
 float HybridAStar::getDistanceHurestic(const Point& point) {
@@ -130,15 +133,15 @@ float HybridAStar::getDistanceHurestic(const Point& point) {
   return -1;
 }
 
-float HybridAStar::DistanceHeuristic(int curr_index, int width, int goal_x,
+float HybridAStar::DistanceHeuristic(int start_x, int start_y, int goal_x,
                                      int goal_y) {
-  int dx = static_cast<int>(curr_index % width) - static_cast<int>(goal_x);
-  int dy = static_cast<int>(curr_index / width) - static_cast<int>(goal_y);
+  int dx = start_x - goal_x;
+  int dy = start_y - goal_y;
   return std::sqrt(dx * dx + dy * dy);
 }
 
 float HybridAStar::getObstacleHurestic(const Point& point) {
-  int size_x = _downsampled_map.getSizeInX();
+  const int size_x = _downsampled_map.getSizeInX();
   int start_x = floor(point.x / 2.0);
   int start_y = floor(point.y / 2.0);
   int start_index = start_x + (start_y * size_x);
@@ -193,7 +196,7 @@ float HybridAStar::getObstacleHurestic(const Point& point) {
     mx_idx = idx - (my_idx * size_x);
 
     // find neighbors
-    for (unsigned int i = 0; i != neighborhood.size(); i++) {
+    for (int i = 0; i != neighborhood.size(); i++) {
       new_idx =
           static_cast<unsigned int>(static_cast<int>(idx) + neighborhood[i]);
 
@@ -201,7 +204,7 @@ float HybridAStar::getObstacleHurestic(const Point& point) {
       // queue
       if (new_idx < size_x * size_y) {
         cost = static_cast<float>(_downsampled_map.getCost(new_idx));
-        if (cost != 0) {
+        if (cost >= 252.0f) {
           continue;
         }
 
@@ -225,7 +228,7 @@ float HybridAStar::getObstacleHurestic(const Point& point) {
             // the negative value means the cell is in the open set
             _obstacle_heuristic_map[new_idx] = -new_cost;
             _obstacle_heuristic_queue.emplace_back(
-                new_cost + DistanceHeuristic(new_idx, size_x, start_x, start_y),
+                new_cost + DistanceHeuristic(mx, my, start_x, start_y),
                 new_idx);
             std::push_heap(_obstacle_heuristic_queue.begin(),
                            _obstacle_heuristic_queue.end(),
@@ -246,22 +249,20 @@ float HybridAStar::getObstacleHurestic(const Point& point) {
 }
 
 void HybridAStar::resetObstacleHurestic() {
+  _obstacle_heuristic_queue.clear();
+
   int size = _downsampled_map.getSizeInX() * _downsampled_map.getSizeInY();
-  if (_obstacle_heuristic_map.size() == size) {
-    std::fill(_obstacle_heuristic_map.begin(), _obstacle_heuristic_map.end(),
-              0.0);
-  } else {
-    std::fill(_obstacle_heuristic_map.begin(), _obstacle_heuristic_map.end(),
-              0.0);
+
+  if (_obstacle_heuristic_map.size() != size) {
     _obstacle_heuristic_map.resize(size, 0.0);
   }
-  _obstacle_heuristic_queue.clear();
-  _obstacle_heuristic_map.reserve(size);
 
+  std::fill(_obstacle_heuristic_map.begin(), _obstacle_heuristic_map.end(),
+            -INFINITY);
   int goal_index = floor(_end_point.x / 2.0) +
                    (floor(_end_point.y / 2.0) * _downsampled_map.getSizeInX());
   _obstacle_heuristic_queue.emplace_back(std::pair(
-      Point::euclideanDistance(_end_point, _start_point), goal_index));
+      Point::euclideanDistance(_end_point, _start_point) / 2.0, goal_index));
   _obstacle_heuristic_map[goal_index] = -0.0001;
 }
 

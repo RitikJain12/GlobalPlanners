@@ -3,9 +3,9 @@ astar_planner:
     planner:
       type: "HybridAStar"
       debug_visualization: true
-      theta_resolution: 62.8
+      theta_resolution: 16.0
       xy_tolerance: 0.1
-      theta_tolerance: 0.1
+      theta_tolerance: 0.4
       timeout: 120.0
       min_velocity: 0.3
       use_dynamic: false

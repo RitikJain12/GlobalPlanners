@@ -35,7 +35,7 @@ class HybridAStar : public AStar {
 
   float getObstacleHurestic(const Point& point);
 
-  float DistanceHeuristic(int curr_index, int width, int goal_x, int goal_y);
+  float DistanceHeuristic(int start_x, int start_y, int goal_x, int goal_y);
 
   void reset() override;
 

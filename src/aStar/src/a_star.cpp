@@ -11,7 +11,7 @@ AStar::AStar(std::shared_ptr<Map> map, const float theta_resolution,
       _map(map),
       _timeout(timeout) {
   _theta_least_count =
-      (2 * M_PI) / _theta_resolution;  // Convert resolution to radians
+      (2 * M_PI) / _theta_resolution;
   int grid_width;
   int grid_height;
 
