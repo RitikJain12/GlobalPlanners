@@ -10,8 +10,7 @@ AStar::AStar(std::shared_ptr<Map> map, const float theta_resolution,
       _theta_tolerance(theta_tolerance),
       _map(map),
       _timeout(timeout) {
-  _theta_least_count =
-      (2 * M_PI) / _theta_resolution;
+  _theta_least_count = (2 * M_PI) / _theta_resolution;
   int grid_width;
   int grid_height;
 
@@ -187,8 +186,6 @@ bool AStar::getPath(std::vector<Point>& path) {
     std::vector<Point> neighbors = getNeighbors(currentNode->point);
     _visualization_data.neighbors.clear();
     for (const Point& neighborPoint : neighbors) {
-      // std::cout << "Neighbour - x: " << neighborPoint.x << " y: " <<
-      // neighborPoint.y << " theta: " << neighborPoint.theta << std::endl;
       Node* neighbor = getNodeAtPose(neighborPoint);
 
       if (neighbor == nullptr) {
@@ -212,8 +209,11 @@ bool AStar::getPath(std::vector<Point>& path) {
         neighbor->f = temp_f;
         neighbor->parent = currentNode;
 
-        // std::cout << "Cost g: " << temp_g << " h: " << temp_h << " f: " <<
-        // temp_f << std::endl;
+        std::cout << "Neighbour - x: " << neighborPoint.x
+                  << " y: " << neighborPoint.y
+                  << " theta: " << neighborPoint.theta << std::endl;
+        std::cout << "Cost g: " << temp_g << " h: " << temp_h
+                  << " f: " << temp_f << std::endl;
 
         openList.push(neighbor);
         _visualization_data.neighbors.push_back(neighbor->point);

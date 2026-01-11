@@ -31,4 +31,8 @@ class DownsampledMap {
   inline int getSizeInY() { return _downsampled_height_index; }
 
   int8_t getCost(int index);
+
+  bool getWorldtoMap(int& index_x, int& index_y, float world_x, float world_y);
+
+  int getIndex(const float& world_x, const float& world_y);
 };
