@@ -9,7 +9,6 @@ HybridAStar::HybridAStar(std::shared_ptr<Map> map, const float min_velocity,
                          const float steer_resolution, const float max_steer)
     : AStar(map, theta_resolution, xy_tolerance, theta_tolerance, timeout),
       _min_velocity(min_velocity),
-      _downsampled_map(map, 2),
       _use_dynamic(use_dynamic),
       _allow_reverse(allow_reverse),
       _wheelbase(wheelbase),
@@ -141,13 +140,14 @@ float HybridAStar::DistanceHeuristic(int curr_index, int width, int goal_x,
 }
 
 float HybridAStar::getObstacleHurestic(const Point& point) {
-  const int size_x = _downsampled_map.getSizeInX();
-  int start_x = floor(point.x / 2.0);
-  int start_y = floor(point.y / 2.0);
-  int start_index = _downsampled_map.getIndex(point.x, point.y);
+  const int size_x = _map->getSizeInX();
+  int start_x;
+  int start_y;
+  _map->getWorldtoMap(start_x, start_y, point.x, point.y);
+  int start_index = _map->getIndex(point.x, point.y);
   float& requested_cost = _obstacle_heuristic_map[start_index];
   if (requested_cost > 0.0) {
-    return 2.0 * requested_cost;
+    return requested_cost;
   }
 
   for (std::pair<float, int>& q : _obstacle_heuristic_queue) {
@@ -160,7 +160,7 @@ float HybridAStar::getObstacleHurestic(const Point& point) {
                  ObstacleHeuristicComparator{});
 
   const int size_x_int = static_cast<int>(size_x);
-  const unsigned int size_y = _downsampled_map.getSizeInY();
+  const unsigned int size_y = _map->getSizeInY();
   const float sqrt_2 = sqrt(2);
   float c_cost, cost, travel_cost, new_cost, existing_cost;
   unsigned int idx, mx, my, mx_idx, my_idx;
@@ -203,8 +203,8 @@ float HybridAStar::getObstacleHurestic(const Point& point) {
       // if neighbor path is better and non-lethal, set new cost and add to
       // queue
       if (new_idx < size_x * size_y) {
-        cost = static_cast<float>(_downsampled_map.getCost(new_idx));
-        if (cost >= 252.0f) {
+        cost = static_cast<float>(_map->getCost(new_idx));
+        if (cost >= 100.0f) {
           continue;
         }
 
@@ -222,7 +222,7 @@ float HybridAStar::getObstacleHurestic(const Point& point) {
 
         existing_cost = _obstacle_heuristic_map[new_idx];
         if (existing_cost <= 0.0f) {
-          travel_cost = ((i <= 3) ? 1.0f : sqrt_2) * (1.0f + (cost / 252.0f));
+          travel_cost = ((i <= 3) ? 1.0f : sqrt_2) * (1.0f + (cost / 100.0f));
           new_cost = c_cost + travel_cost;
           if (existing_cost == 0.0f || -existing_cost > new_cost) {
             // the negative value means the cell is in the open set
@@ -243,25 +243,28 @@ float HybridAStar::getObstacleHurestic(const Point& point) {
     }
   }
 
+  if (_obstacle_heuristic_queue.empty()) {
+    std::cout << "Obstacle heuristic queue empty!" << std::endl;
+  }
   // return requested_node_cost which has been updated by the search
   // costs are doubled due to downsampling
-  return 2.0 * requested_cost;
+  return requested_cost;
 }
 
 void HybridAStar::resetObstacleHurestic() {
   _obstacle_heuristic_queue.clear();
 
-  int size = _downsampled_map.getSizeInX() * _downsampled_map.getSizeInY();
+  int size = _map->getSizeInX() * _map->getSizeInY();
 
   if (_obstacle_heuristic_map.size() != size) {
     _obstacle_heuristic_map.resize(size, 0.0);
   }
 
   std::fill(_obstacle_heuristic_map.begin(), _obstacle_heuristic_map.end(),
-            -INFINITY);
-  int goal_index = _downsampled_map.getIndex(_end_point.x, _end_point.y);
+            0.0f);
+  int goal_index = _map->getIndex(_end_point.x, _end_point.y);
   _obstacle_heuristic_queue.emplace_back(std::pair(
-      Point::euclideanDistance(_end_point, _start_point) / 2.0, goal_index));
+      Point::euclideanDistance(_end_point, _start_point), goal_index));
   _obstacle_heuristic_map[goal_index] = -0.0001;
 }
 

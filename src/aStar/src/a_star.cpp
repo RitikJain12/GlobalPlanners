@@ -219,6 +219,7 @@ bool AStar::getPath(std::vector<Point>& path) {
         _visualization_data.neighbors.push_back(neighbor->point);
       }
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 
   return false;  // No path found

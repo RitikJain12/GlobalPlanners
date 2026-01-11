@@ -8,6 +8,7 @@
 #include <iostream>
 #include <memory>
 #include <queue>
+#include <thread>
 #include <unordered_set>
 #include <vector>
 
@@ -72,7 +73,6 @@ class AStar {
   float _theta_tolerance;
   std::vector<Node> _node_data;       // List of nodes used in the algorithm
   std::vector<Node*> _node_position;  // Pointers to nodes for quick access
-  std::shared_ptr<Map> _map;
   float _timeout;
 
   VisvualizationData _visualization_data;
@@ -105,6 +105,8 @@ class AStar {
   float _xy_resolution;      // Resolution for XY coordinates
   float _theta_resolution;   // Resolution for theta
   float _theta_least_count;  // Least count for theta resolution
+
+  std::shared_ptr<Map> _map;
 };
 
 struct CompareNode {

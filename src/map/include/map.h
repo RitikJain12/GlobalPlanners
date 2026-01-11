@@ -19,7 +19,7 @@ class Map {
   void getLineCells(int x0, int x1, int y0, int y1,
                     std::vector<std::pair<int, int>>& pts);
 
-  void setCost(int index_x, int index_y, int cost);
+  void setCost(int index_x, int index_y, int8_t cost);
 
  public:
   Map(const float& width, const float& height, const float& resolution);
@@ -31,6 +31,8 @@ class Map {
 
   int8_t getCost(const int& index_x, const int& index_y);
 
+  int8_t getCost(const unsigned int index);
+
   // Method to set the footprint
   void setFootprint(const std::vector<Point> footprint);
 
@@ -41,6 +43,10 @@ class Map {
     height = _height_index;
     res = _resolution;
   }
+
+  inline int getSizeInX() { return _width_index; }
+
+  inline int getSizeInY() { return _height_index; }
 
   // Transform footprint coordinates and return map cells
   std::vector<std::pair<int, int>> getFootprintCells(const Point& point);

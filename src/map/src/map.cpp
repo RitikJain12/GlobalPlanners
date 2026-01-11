@@ -30,14 +30,20 @@ int8_t Map::getCost(const int& index_x, const int& index_y) {
 
   if (index < (_width_index * _height_index)) return _map[index];
 
-  return 1;
+  return -1;
+}
+
+int8_t Map::getCost(const unsigned int index) {
+  if (index < (_width_index * _height_index)) return _map[index];
+
+  return -1;
 }
 
 void Map::setFootprint(const std::vector<Point> footprint) {
   _footprint = footprint;
 }
 
-void Map::setCost(int index_x, int index_y, int cost) {
+void Map::setCost(int index_x, int index_y, int8_t cost) {
   int index = index_x + (index_y * _width_index);
 
   if (index < (_width_index * _height_index)) _map[index] = cost;
@@ -170,6 +176,6 @@ void Map::setObstacles(std::vector<Point> polygon) {
   }
 
   for (const std::pair<int, int>& p : footprint_cells) {
-    setCost(p.first, p.second, 254);
+    setCost(p.first, p.second, 100);
   }
 }

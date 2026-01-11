@@ -1,5 +1,4 @@
 #include "a_star.h"
-#include "downsampled_map.h"
 extern "C" {
 #include "dubins.h"
 }
@@ -51,7 +50,6 @@ class HybridAStar : public AStar {
   int _steer_step;
   double _max_turnning_radius;
 
-  DownsampledMap _downsampled_map;
   std::vector<float> _obstacle_heuristic_map;
   std::vector<std::pair<float, int>> _obstacle_heuristic_queue;
 
