@@ -67,7 +67,8 @@ COPY ./ros_entrypoint.sh /
 
 RUN chmod +x /ros_entrypoint.sh 
 
-RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
+RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /home/appuser/.bashrc
+RUN echo "source /ros2_ws/install/setup.bash" >> /home/appuser/.bashrc
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]
