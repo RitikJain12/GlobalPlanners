@@ -3,9 +3,9 @@ astar_planner:
     planner:
       type: "HybridAStar"
       debug_visualization: true
-      theta_resolution: 628.0 # number of discrete theta values
+      theta_resolution: 64.0 # number of discrete theta values
       xy_tolerance: 0.1 # meters
-      theta_tolerance: 0.4 # radians
+      theta_tolerance: 0.45 # radians
       timeout: 20.0 # seconds
       min_velocity: 0.3 # meters per second
       use_dynamic: false
