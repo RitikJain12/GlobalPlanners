@@ -50,7 +50,7 @@ class Point {
   float x;
   float y;
   float theta;
-  float steer;
+  float steer = 0.0;
   bool reverse = false;
   float linear_vel = 0.0;
 

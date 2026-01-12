@@ -175,6 +175,9 @@ class PlannerAStar : public rclcpp::Node {
       this->get_parameter("planner.steer_resolution", steer_resolution);
       this->get_parameter("planner.max_steer", max_steer);
 
+      max_steer = max_steer * (M_PI / 180.0);  // degrees to radians
+      steer_resolution = steer_resolution * (M_PI / 180.0);
+
       a_star_ = new HybridAStar(
           map_ptr_, min_velocity, theta_resolution, xy_tolerance,
           theta_tolerance, timeout, use_dynamic, allow_reverse, wheelbase,

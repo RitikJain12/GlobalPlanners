@@ -47,7 +47,6 @@ void AStar::setGoal(float x, float y, float theta) {
 }
 
 void AStar::setNodeAtPose(Point point, Node* node) {
-  // roundPointsToResolution(point);
   int index_xy = _map->getIndex(point.x, point.y);
   unsigned long int index = static_cast<int>(point.theta / _theta_least_count) +
                             (index_xy * _theta_resolution);
@@ -55,7 +54,6 @@ void AStar::setNodeAtPose(Point point, Node* node) {
 }
 
 Node* AStar::getNodeAtPose(Point point) {
-  // roundPointsToResolution(point);
   int index_xy = _map->getIndex(point.x, point.y);
   unsigned long int index = static_cast<int>(point.theta / _theta_least_count) +
                             (index_xy * _theta_resolution);

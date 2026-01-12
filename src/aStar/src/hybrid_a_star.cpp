@@ -29,33 +29,30 @@ std::vector<Point> HybridAStar::discretizeVel(const Point& point) {
   float dy = _min_velocity * sin(point.theta);
 
   // Add neighbors in forward direction
-  for (float steer = -_steer_step; steer <= _steer_step; steer += 1) {
+  for (int steer = -_steer_step; steer <= _steer_step; steer += 1) {
     float dtheta =
         _min_velocity * (tan(steer * _steer_resolution) / _wheelbase);
     float theta_dash = point.theta + dtheta;
     Point::normalizeTheta(theta_dash);
-    Point neighbor((point.x + dx), (point.y + dy), theta_dash,
-                   (steer * _steer_resolution));
+    Point neighbor((point.x + dx), (point.y + dy), theta_dash, steer);
 
     // Check for collision before adding to neighbors
     if (!checkCollision(neighbor)) neighbors.push_back(neighbor);
   }
 
   if (_allow_reverse) {
-    for (float steer = -_steer_step; steer <= _steer_step; steer += 1) {
+    for (int steer = -_steer_step; steer <= _steer_step; steer += 1) {
       float dtheta =
           _min_velocity * (tan(steer * _steer_resolution) / _wheelbase);
       float theta_dash = point.theta - dtheta;
       Point::normalizeTheta(theta_dash);
-      Point neighbor((point.x - dx), (point.y - dy), theta_dash,
-                     (steer * _steer_resolution));
+      Point neighbor((point.x - dx), (point.y - dy), theta_dash, steer);
       neighbor.reverse = true;
 
       // Check for collision before adding to neighbors
       if (!checkCollision(neighbor)) neighbors.push_back(neighbor);
     }
   }
-
   return neighbors;
 }
 
@@ -75,12 +72,12 @@ std::vector<Point> HybridAStar::discretizeAcc(const Point& point) {
     float dy = curr_vel * sin(point.theta);
 
     // Add neighbors in forward direction
-    for (float steer = -_steer_step; steer <= _steer_step; steer += 1) {
+    for (int steer = -_steer_step; steer <= _steer_step; steer += 1) {
       float dtheta = curr_vel * (tan(steer * _steer_resolution) / _wheelbase);
       float theta_dash = point.theta + dtheta;
       Point::normalizeTheta(theta_dash);
-      Point neighbor((point.x + dx), (point.y + dy), theta_dash,
-                     (steer * _steer_resolution), curr_vel);
+      Point neighbor((point.x + dx), (point.y + dy), theta_dash, steer,
+                     curr_vel);
 
       // Check for collision before adding to neighbors
       if (!checkCollision(neighbor)) neighbors.push_back(neighbor);
@@ -102,15 +99,12 @@ float HybridAStar::calculateTravelCost(const Node& currentNode,
                                        const Node& neighborNode) {
   float distance =
       Point::euclideanDistance(currentNode.point, neighborNode.point);
-  float angleDifference =
-      Point::absAngleDiff(currentNode.point.steer, neighborNode.point.steer);
-  Point::normalizeTheta(angleDifference);
+  int steerChange = abs(currentNode.point.steer - neighborNode.point.steer);
   int reverse_penalty = 0;
   if (neighborNode.point.reverse) {
     reverse_penalty = _reverse_penalty;
   }
-  return distance + (_turn_penalty * (angleDifference / _theta_least_count)) +
-         reverse_penalty;
+  return distance + (_turn_penalty * steerChange) + reverse_penalty;
 }
 
 float HybridAStar::calculateHeuristic(const Node& currentNode) {
@@ -119,7 +113,7 @@ float HybridAStar::calculateHeuristic(const Node& currentNode) {
   // std::cout << "Distance Heuristic: " << dist_heuristic
   //           << " Obstacle Heuristic: " << obs_heuristic << std::endl;
   return std::max(dist_heuristic, obs_heuristic);
-  // return dist_heuristic;
+  // return obs_heuristic;
 }
 
 float HybridAStar::getDistanceHurestic(const Point& point) {
@@ -129,6 +123,7 @@ float HybridAStar::getDistanceHurestic(const Point& point) {
   if (dubins_shortest_path(&path, q0, q1, _max_turnning_radius) == 0) {
     return static_cast<float>(dubins_path_length(&path));
   }
+  std::cout << "Dubins path not found!" << std::endl;
   return -1;
 }
 

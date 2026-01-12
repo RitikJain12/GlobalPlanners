@@ -3,18 +3,18 @@ astar_planner:
     planner:
       type: "HybridAStar"
       debug_visualization: true
-      theta_resolution: 16.0
-      xy_tolerance: 0.1
-      theta_tolerance: 0.4
-      timeout: 20.0
-      min_velocity: 0.3
+      theta_resolution: 628.0 # number of discrete theta values
+      xy_tolerance: 0.1 # meters
+      theta_tolerance: 0.4 # radians
+      timeout: 20.0 # seconds
+      min_velocity: 0.3 # meters per second
       use_dynamic: false
       allow_reverse: false
-      wheelbase: 2.0
-      max_velocity: 0.7
-      min_linear_acc: 0.1
-      steer_resolution: 5.625
-      max_steer: 33.75
+      wheelbase: 2.0 # meters
+      max_velocity: 0.7 # meters per second
+      min_linear_acc: 0.1 # meters per second squared
+      steer_resolution: 8.0 # degrees
+      max_steer: 40.0 # degrees
 
     map:
       width: 20.0

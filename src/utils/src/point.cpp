@@ -38,6 +38,7 @@ Point::Point(const Point& other) {
   x = other.x;
   y = other.y;
   theta = other.theta;
+  steer = other.steer;
   reverse = other.reverse;
   linear_vel = other.linear_vel;
 }
