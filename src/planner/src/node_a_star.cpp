@@ -25,7 +25,8 @@ class PlannerAStar : public rclcpp::Node {
     footprint_publisher_ =
         this->create_publisher<geometry_msgs::msg::PolygonStamped>("/footprint",
                                                                    10);
-
+    goal_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>(
+        "/goal_pose_debug", 10);
     viz_publisher_ =
         this->create_publisher<visualization_msgs::msg::MarkerArray>(
             "/planner_visualization", 10);
@@ -223,6 +224,7 @@ class PlannerAStar : public rclcpp::Node {
   }
 
   void goalCallback(const geometry_msgs::msg::PoseStamped& msg) {
+    goal_pub_->publish(msg);
     a_star_->setGoal(getPoint(msg.pose));
     try_plan();
   }
@@ -325,6 +327,7 @@ class PlannerAStar : public rclcpp::Node {
       footprint_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr
       viz_publisher_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr goal_pub_;
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr goal_sub_;
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
       start_sub_;
