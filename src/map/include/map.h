@@ -48,6 +48,8 @@ class Map {
 
   inline int getSizeInY() { return _height_index; }
 
+  inline float getResolution() { return _resolution; }
+
   // Transform footprint coordinates and return map cells
   std::vector<std::pair<int, int>> getFootprintCells(const Point& point);
 

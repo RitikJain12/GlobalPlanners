@@ -18,6 +18,8 @@ class HybridAStar : public AStar {
  private:
   void resetObstacleHurestic();
 
+  void resetDistanceHurestic();
+
   // Helper function to get neighbors of a point
   std::vector<Point> getNeighbors(const Point& point) override;
 
@@ -49,6 +51,8 @@ class HybridAStar : public AStar {
   float _max_steer;
   int _steer_step;
   double _max_turnning_radius;
+
+  std::vector<float> _distance_heuristic_map;
 
   std::vector<float> _obstacle_heuristic_map;
   std::vector<std::pair<float, int>> _obstacle_heuristic_queue;

@@ -3,7 +3,7 @@ astar_planner:
     planner:
       type: "HybridAStar"
       debug_visualization: true
-      theta_resolution: 64.0 # number of discrete theta values
+      theta_resolution: 62.8 # number of discrete theta values
       xy_tolerance: 0.1 # meters
       theta_tolerance: 0.45 # radians
       timeout: 20.0 # seconds
@@ -13,7 +13,7 @@ astar_planner:
       wheelbase: 2.0 # meters
       max_velocity: 0.7 # meters per second
       min_linear_acc: 0.1 # meters per second squared
-      steer_resolution: 8.0 # degrees
+      steer_resolution: 10.0 # degrees
       max_steer: 40.0 # degrees
 
     map:

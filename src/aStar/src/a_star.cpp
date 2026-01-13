@@ -207,11 +207,11 @@ bool AStar::getPath(std::vector<Point>& path) {
         neighbor->f = temp_f;
         neighbor->parent = currentNode;
 
-        // std::cout << "Neighbour - x: " << neighborPoint.x
-        //           << " y: " << neighborPoint.y
-        //           << " theta: " << neighborPoint.theta << std::endl;
-        // std::cout << "Cost g: " << temp_g << " h: " << temp_h
-        //           << " f: " << temp_f << std::endl;
+        std::cout << "Neighbour - x: " << neighborPoint.x
+                  << " y: " << neighborPoint.y
+                  << " theta: " << neighborPoint.theta << std::endl;
+        std::cout << "Cost g: " << temp_g << " h: " << temp_h
+                  << " f: " << temp_f << std::endl;
 
         openList.push(neighbor);
         _visualization_data.neighbors.push_back(neighbor->point);

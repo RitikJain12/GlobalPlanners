@@ -113,18 +113,32 @@ float HybridAStar::calculateHeuristic(const Node& currentNode) {
   // std::cout << "Distance Heuristic: " << dist_heuristic
   //           << " Obstacle Heuristic: " << obs_heuristic << std::endl;
   return std::max(dist_heuristic, obs_heuristic);
-  // return obs_heuristic;
+  // return dist_heuristic;
 }
 
 float HybridAStar::getDistanceHurestic(const Point& point) {
   DubinsPath path;
   double q0[3] = {point.x, point.y, point.theta};
   double q1[3] = {_end_point.x, _end_point.y, _end_point.theta};
-  if (dubins_shortest_path(&path, q0, q1, _max_turnning_radius) == 0) {
-    return static_cast<float>(dubins_path_length(&path));
+  int xy_index = _map->getIndex(point.x, point.y);
+  int point_index = static_cast<int>(point.theta / _theta_least_count) +
+                    static_cast<int>(xy_index * _theta_resolution);
+
+  if (_distance_heuristic_map[point_index] >= 0.0f) {
+    return _distance_heuristic_map[point_index];
   }
-  std::cout << "Dubins path not found!" << std::endl;
-  return -1;
+
+  float min_cost = MAXFLOAT;
+  for (int turn_res = 1; turn_res <= _steer_step; turn_res++) {
+    float steer_angle = turn_res * _steer_resolution;
+    double turning_radius = _wheelbase / tan(steer_angle);
+    if (dubins_shortest_path(&path, q0, q1, turning_radius) == 0) {
+      min_cost =
+          std::min(min_cost, static_cast<float>(dubins_path_length(&path)));
+    }
+  }
+  _distance_heuristic_map[point_index] = min_cost;
+  return min_cost;
 }
 
 float HybridAStar::DistanceHeuristic(int curr_index, int width, int goal_x,
@@ -218,7 +232,7 @@ float HybridAStar::getObstacleHurestic(const Point& point) {
         existing_cost = _obstacle_heuristic_map[new_idx];
         if (existing_cost <= 0.0f) {
           travel_cost = ((i <= 3) ? 1.0f : sqrt_2) * (1.0f + (cost / 100.0f));
-          new_cost = c_cost + travel_cost;
+          new_cost = c_cost + (travel_cost * _map->getResolution());
           if (existing_cost == 0.0f || -existing_cost > new_cost) {
             // the negative value means the cell is in the open set
             _obstacle_heuristic_map[new_idx] = -new_cost;
@@ -263,7 +277,26 @@ void HybridAStar::resetObstacleHurestic() {
   _obstacle_heuristic_map[goal_index] = -0.0001;
 }
 
+void HybridAStar::resetDistanceHurestic() {
+  int size = _map->getSizeInX() * _map->getSizeInY() * _theta_resolution;
+
+  if (_distance_heuristic_map.size() != size) {
+    _distance_heuristic_map.resize(size, 0.0);
+  }
+
+  std::fill(_distance_heuristic_map.begin(), _distance_heuristic_map.end(),
+            -1.0f);
+
+  int index_xy = _map->getIndex(_end_point.x, _end_point.y);
+  unsigned long int goal_index =
+      static_cast<int>(_end_point.theta / _theta_least_count) +
+      (index_xy * _theta_resolution);
+
+  _distance_heuristic_map[goal_index] = 0.0f;
+}
+
 void HybridAStar::reset() {
   AStar::reset();
   resetObstacleHurestic();
+  resetDistanceHurestic();
 }
