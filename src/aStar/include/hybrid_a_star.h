@@ -50,15 +50,16 @@ class HybridAStar : public AStar {
   float _steer_resolution;
   float _max_steer;
   int _steer_step;
-  double _max_turnning_radius;
+  double _min_turnning_radius;
 
   std::vector<float> _distance_heuristic_map;
 
   std::vector<float> _obstacle_heuristic_map;
   std::vector<std::pair<float, int>> _obstacle_heuristic_queue;
 
-  float _turn_penalty = 0.02f;
-  float _reverse_penalty = 10.0f;
+  float _turn_penalty = 1.2f;
+  float _change_penalty = 0.7f;
+  float _reverse_penalty = 2.0f;
 };
 
 struct ObstacleHeuristicComparator {

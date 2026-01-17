@@ -17,7 +17,7 @@ HybridAStar::HybridAStar(std::shared_ptr<Map> map, const float min_velocity,
       _steer_resolution(steer_resolution),
       _max_steer(max_steer) {
   _steer_step = static_cast<int>(_max_steer / _steer_resolution);
-  _max_turnning_radius = _wheelbase / tan(_max_steer);
+  _min_turnning_radius = _wheelbase / tan(_max_steer);
   _max_reverse_vel = _allow_reverse ? -_max_velocity : 0.0;
 }
 
@@ -97,19 +97,34 @@ std::vector<Point> HybridAStar::getNeighbors(const Point& point) {
 
 float HybridAStar::calculateTravelCost(const Node& currentNode,
                                        const Node& neighborNode) {
+  float travel_cost = 0.0f;
+
   float distance =
       Point::euclideanDistance(currentNode.point, neighborNode.point);
-  int steerChange = abs(currentNode.point.steer - neighborNode.point.steer);
-  int reverse_penalty = 0;
-  if (neighborNode.point.reverse) {
-    reverse_penalty = _reverse_penalty;
+
+  travel_cost += distance;
+
+  if (currentNode.point.steer != 0) {
+    if (currentNode.point.steer == neighborNode.point.steer) {
+      travel_cost *= _turn_penalty;
+    } else {
+      travel_cost *= (_turn_penalty + _change_penalty);
+    }
   }
-  return distance + (_turn_penalty * steerChange) + reverse_penalty;
+
+  if (neighborNode.point.reverse) {
+    travel_cost *= _reverse_penalty;
+  }
+
+  return travel_cost;
 }
 
 float HybridAStar::calculateHeuristic(const Node& currentNode) {
   float dist_heuristic = getDistanceHurestic(currentNode.point);
   float obs_heuristic = getObstacleHurestic(currentNode.point);
+  // std::cout << "Current Node - x: " << currentNode.point.x
+  //           << " y: " << currentNode.point.y
+  //           << " theta: " << currentNode.point.theta << std::endl;
   // std::cout << "Distance Heuristic: " << dist_heuristic
   //           << " Obstacle Heuristic: " << obs_heuristic << std::endl;
   return std::max(dist_heuristic, obs_heuristic);
@@ -128,15 +143,11 @@ float HybridAStar::getDistanceHurestic(const Point& point) {
     return _distance_heuristic_map[point_index];
   }
 
-  float min_cost = MAXFLOAT;
-  for (int turn_res = 1; turn_res <= _steer_step; turn_res++) {
-    float steer_angle = turn_res * _steer_resolution;
-    double turning_radius = _wheelbase / tan(steer_angle);
-    if (dubins_shortest_path(&path, q0, q1, turning_radius) == 0) {
-      min_cost =
-          std::min(min_cost, static_cast<float>(dubins_path_length(&path)));
-    }
+  float min_cost;
+  if (dubins_shortest_path(&path, q0, q1, _min_turnning_radius) == 0) {
+    min_cost = static_cast<float>(dubins_path_length(&path));
   }
+
   _distance_heuristic_map[point_index] = min_cost;
   return min_cost;
 }
@@ -170,7 +181,7 @@ float HybridAStar::getObstacleHurestic(const Point& point) {
 
   const int size_x_int = static_cast<int>(size_x);
   const unsigned int size_y = _map->getSizeInY();
-  const float sqrt_2 = sqrt(2);
+  const float sqrt_2 = sqrt(2) * _map->getResolution();
   float c_cost, cost, travel_cost, new_cost, existing_cost;
   unsigned int idx, mx, my, mx_idx, my_idx;
   unsigned int new_idx = 0;
@@ -231,8 +242,9 @@ float HybridAStar::getObstacleHurestic(const Point& point) {
 
         existing_cost = _obstacle_heuristic_map[new_idx];
         if (existing_cost <= 0.0f) {
-          travel_cost = ((i <= 3) ? 1.0f : sqrt_2) * (1.0f + (cost / 100.0f));
-          new_cost = c_cost + (travel_cost * _map->getResolution());
+          travel_cost = ((i <= 3) ? _map->getResolution() : sqrt_2) *
+                        (1.0f + (cost / 100.0f));
+          new_cost = c_cost + travel_cost;
           if (existing_cost == 0.0f || -existing_cost > new_cost) {
             // the negative value means the cell is in the open set
             _obstacle_heuristic_map[new_idx] = -new_cost;
