@@ -43,12 +43,6 @@ Point::Point(const Point& other) {
   linear_vel = other.linear_vel;
 }
 
-bool Point::operator==(const Point& other) const {
-  return (std::abs(x - other.x) < (_xy_least_count / 2.0)) &&
-         (std::abs(y - other.y) < (_xy_least_count / 2.0)) &&
-         (std::abs(theta - other.theta) < (_theta_least_count / 2.0));
-}
-
 void Point::operator=(const Point& other) {
   x = other.x;
   y = other.y;
@@ -56,6 +50,12 @@ void Point::operator=(const Point& other) {
   reverse = other.reverse;
   steer = other.steer;
   linear_vel = other.linear_vel;
+}
+
+bool Point::operator==(const Point& other) const {
+  return (std::abs(x - other.x) < (_xy_least_count / 2.0)) &&
+         (std::abs(y - other.y) < (_xy_least_count / 2.0)) &&
+         (std::abs(theta - other.theta) < (_theta_least_count / 2.0));
 }
 
 void Point::setLeastCount(const float xy_least_count,

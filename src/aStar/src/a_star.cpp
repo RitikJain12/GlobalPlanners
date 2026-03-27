@@ -83,7 +83,6 @@ std::vector<Point> AStar::getNeighbors(const Point& point) {
   // Add neighbors in the theta direction
   for (float dtheta = 1; dtheta < _theta_resolution; dtheta += 1) {
     float theta_dash = point.theta + (dtheta * _theta_least_count);
-    Point::normalizeTheta(theta_dash);
     Point neighbor(point.x, point.y, theta_dash);
     Point::normalizePoint(neighbor);
     neighbors.push_back(neighbor);
@@ -158,6 +157,7 @@ bool AStar::getPath(std::vector<Point>& path) {
 
   std::chrono::steady_clock::time_point begin =
       std::chrono::steady_clock::now();
+
   while (!openList.empty() && std::chrono::duration_cast<std::chrono::seconds>(
                                   std::chrono::steady_clock::now() - begin)
                                       .count() < _timeout) {

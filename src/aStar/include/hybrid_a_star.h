@@ -58,7 +58,7 @@ class HybridAStar : public AStar {
   std::vector<std::pair<float, int>> _obstacle_heuristic_queue;
 
   float _turn_penalty = 1.2f;
-  float _change_penalty = 0.7f;
+  float _change_penalty = 0.2f;
   float _reverse_penalty = 2.0f;
 };
 

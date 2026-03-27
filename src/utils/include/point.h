@@ -1,7 +1,6 @@
 #pragma once
 
 #include <math.h>
-
 #include <algorithm>
 
 class Point {
@@ -20,6 +19,9 @@ class Point {
 
   // Copy constructor
   Point(const Point& other);
+
+  // Assignment operator
+  void operator=(const Point& other);
 
   // Set least count for x, y & theta
   static void setLeastCount(const float xy_least_count,
@@ -43,16 +45,13 @@ class Point {
   // Equality operator for comparing two Point objects
   bool operator==(const Point& other) const;
 
-  // Assignment operator
-  void operator=(const Point& other);
-
   // Member variables
   float x;
   float y;
   float theta;
-  float steer = 0.0;
-  bool reverse = false;
-  float linear_vel = 0.0;
+  float steer{0.0};
+  bool reverse{false};
+  float linear_vel{0.0};
 
  private:
   static float _xy_least_count;     // Threshold for floating-point comparison

@@ -2,7 +2,7 @@ astar_planner:
   ros__parameters:
     planner:
       type: "HybridAStar"
-      debug_visualization: false
+      debug_visualization: true
       theta_resolution: 72.0 # number of discrete theta values
       xy_tolerance: 0.25 # meters
       theta_tolerance: 0.45 # radians

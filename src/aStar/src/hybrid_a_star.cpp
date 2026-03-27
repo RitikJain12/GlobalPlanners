@@ -35,7 +35,7 @@ std::vector<Point> HybridAStar::discretizeVel(const Point& point) {
     float theta_dash = point.theta + dtheta;
     Point::normalizeTheta(theta_dash);
     Point neighbor((point.x + dx), (point.y + dy), theta_dash, steer);
-
+    Point::normalizePoint(neighbor);
     // Check for collision before adding to neighbors
     if (!checkCollision(neighbor)) neighbors.push_back(neighbor);
   }
@@ -48,7 +48,7 @@ std::vector<Point> HybridAStar::discretizeVel(const Point& point) {
       Point::normalizeTheta(theta_dash);
       Point neighbor((point.x - dx), (point.y - dy), theta_dash, steer);
       neighbor.reverse = true;
-
+      Point::normalizePoint(neighbor);
       // Check for collision before adding to neighbors
       if (!checkCollision(neighbor)) neighbors.push_back(neighbor);
     }
@@ -78,7 +78,7 @@ std::vector<Point> HybridAStar::discretizeAcc(const Point& point) {
       Point::normalizeTheta(theta_dash);
       Point neighbor((point.x + dx), (point.y + dy), theta_dash, steer,
                      curr_vel);
-
+      Point::normalizePoint(neighbor);
       // Check for collision before adding to neighbors
       if (!checkCollision(neighbor)) neighbors.push_back(neighbor);
     }
