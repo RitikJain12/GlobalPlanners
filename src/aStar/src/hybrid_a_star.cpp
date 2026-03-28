@@ -12,7 +12,7 @@ HybridAStar::HybridAStar(std::shared_ptr<Map> map, const float min_velocity,
       _use_dynamic(use_dynamic),
       _allow_reverse(allow_reverse),
       _wheelbase(wheelbase),
-      _max_velocity(min_velocity),
+      _max_velocity(max_velocity),
       _min_linear_acc(min_linear_acc),
       _steer_resolution(steer_resolution),
       _max_steer(max_steer) {
@@ -143,7 +143,7 @@ float HybridAStar::getDistanceHurestic(const Point& point) {
     return _distance_heuristic_map[point_index];
   }
 
-  float min_cost;
+  float min_cost = MAXFLOAT;
   if (dubins_shortest_path(&path, q0, q1, _min_turnning_radius) == 0) {
     min_cost = static_cast<float>(dubins_path_length(&path));
   }

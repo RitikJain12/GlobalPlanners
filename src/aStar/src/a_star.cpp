@@ -144,6 +144,7 @@ bool AStar::getPath(std::vector<Point>& path) {
   std::priority_queue<Node*, std::vector<Node*>, CompareNode> openList;
 
   int node_data_index = 0;
+  int expansions = 0;
 
   Node startNode = Node(_start_point);
   startNode.g = 0.0f;  // Cost from start to start is zero
@@ -164,8 +165,9 @@ bool AStar::getPath(std::vector<Point>& path) {
     Node* currentNode = openList.top();
     openList.pop();
     _visualization_data.current = currentNode->point;
+    ++expansions;
 
-    if (_visualization_callback) {
+    if (_visualization_callback && expansions % 100 == 0) {
       _visualization_callback(_visualization_data);
     }
 
@@ -217,7 +219,6 @@ bool AStar::getPath(std::vector<Point>& path) {
         _visualization_data.neighbors.push_back(neighbor->point);
       }
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 
   return false;  // No path found
@@ -226,6 +227,13 @@ bool AStar::getPath(std::vector<Point>& path) {
 void AStar::reset() {
   _visualization_data = VisvualizationData();
   _node_data.clear();
+
+  int grid_width;
+  int grid_height;
+  _map->getMapDimentions(grid_width, grid_height, _xy_resolution);
+  
+  _node_data.reserve((unsigned long int)grid_width * grid_height *
+                     _theta_resolution);
   std::fill(_node_position.begin(), _node_position.end(), nullptr);
 }
 

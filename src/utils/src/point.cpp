@@ -83,6 +83,7 @@ void Point::normalizePoint(Point& point) {
   point.y = std::round(point.y / _xy_least_count) * _xy_least_count;
   point.theta =
       std::round(point.theta / _theta_least_count) * _theta_least_count;
+  normalizeTheta(point.theta);  // re-normalize after rounding to prevent theta == 2π
 }
 
 float Point::slope(const Point& p1, const Point& p2) {
