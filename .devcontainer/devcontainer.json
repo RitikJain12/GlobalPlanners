@@ -32,7 +32,8 @@
                 "redhat.vscode-yaml",
                 "eamodio.gitlens",
                 "ms-vscode.cpptools",
-                "redhat.vscode-xml"
+                "redhat.vscode-xml",
+                "Anthropic.claude-code"
             ],
             "settings": {
                 "editor.formatOnSave": true,
