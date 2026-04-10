@@ -19,7 +19,7 @@ Grid-based search with discrete heading angles. Fast and deterministic; does not
 ### Hybrid A\*
 Kinematic-aware planner for Ackermann-steered vehicles. Produces drivable paths that respect steering and velocity constraints.
 
-- Continuous heading (default: 72 bins × 5°)
+- Continuous heading (default: 238 bins × ~1.5°)
 - Dubins curve integration for smooth terminal segments
 - Configurable wheelbase, max steering angle, and velocity limits
 - Optional reverse motion
@@ -109,7 +109,7 @@ Parameters are loaded from YAML at launch. Both configs share map settings (20 �
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `theta_resolution` | `72.0` | Number of discrete heading bins |
+| `theta_resolution` | `238.0` | Number of discrete heading bins |
 | `xy_tolerance` | `0.25` m | Goal position tolerance |
 | `theta_tolerance` | `0.45` rad | Goal heading tolerance |
 | `timeout` | `40.0` s | Planning timeout |

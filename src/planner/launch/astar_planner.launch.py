@@ -15,7 +15,7 @@ def generate_launch_description():
         PythonExpression([
             "'astar_params.yaml' if '", planner_type,
             "' == 'AStar' else ('hybrid_a_star.yaml' if '",
-            planner_type, "' == 'HybridA' else '')"
+            planner_type, "' == 'HybridAStar' else '')"
         ])
     ])
 
